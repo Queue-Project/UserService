@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageId>UserService.Contracts</PackageId>
+        <Authors>QueueProject</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MagicOnion.Abstractions" Version="7.10.1" />
+      <PackageReference Include="MessagePack.Annotations" Version="3.1.7" />
+    </ItemGroup>
+
+</Project>
