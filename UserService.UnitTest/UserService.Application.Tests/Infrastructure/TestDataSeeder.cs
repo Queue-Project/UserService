@@ -35,17 +35,5 @@ public class TestDataSeeder
         };
     }
 
-    public static EmployeeEntity CreateEmployee()
-    {
-        return new EmployeeEntity
-        {
-            CompanyId = 1,
-            BranchId = 1,
-            FirstName = "Test Firstname",
-            LastName = "Test Lastname",
-            Position = "Test Position",
-            PhoneNumber = "+992923324252",
-            CreatedAt = DateTime.UtcNow
-        };
-    }
+    
 }
