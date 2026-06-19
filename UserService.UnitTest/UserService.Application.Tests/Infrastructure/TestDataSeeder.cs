@@ -16,6 +16,38 @@ public class TestDataSeeder
         };
     }
 
+    public static List<CustomerEntity> CreateCustomers()
+    {
+        return new List<CustomerEntity>
+        {
+
+            new CustomerEntity()
+            {
+                Id = 1,
+                FirstName = "Test Firstname",
+                LastName = "Test Lastname",
+                PhoneNumber = "+992000000000",
+                CreatedAt = DateTime.UtcNow
+            },
+            new CustomerEntity()
+            {
+                Id = 2,
+                FirstName = "Test Firstname2",
+                LastName = "Test Lastname2",
+                PhoneNumber = "+992000000002",
+                CreatedAt = DateTime.UtcNow
+            },
+            new CustomerEntity()
+            {
+                Id = 2,
+                FirstName = "Test Firstname2",
+                LastName = "Test Lastname2",
+                PhoneNumber = "+992000000002",
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+    }
+
     public static CustomerEntity CreateCustomerWithProfileInformation()
     {
         return new CustomerEntity
