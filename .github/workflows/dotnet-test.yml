@@ -16,13 +16,45 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    
+    - name: Create Local NuGet Packages
+      run: |
+        # Create directory for local packages
+        mkdir -p LocalPackages
+        
+        # Check if BranchService.Contracts exists and pack it
+        if [ -d "BranchService.Contracts" ]; then
+          echo "Packing BranchService.Contracts..."
+          dotnet pack BranchService.Contracts/BranchService.Contracts.csproj -c Release -o ./LocalPackages
+        fi
+        
+        # Check if QNotificationService.Contracts exists and pack it
+        if [ -d "QNotificationService.Contracts" ]; then
+          echo "Packing QNotificationService.Contracts..."
+          dotnet pack QNotificationService.Contracts/QNotificationService.Contracts.csproj -c Release -o ./LocalPackages
+        fi
+        
+        # List the generated packages
+        echo "Generated packages:"
+        ls -la ./LocalPackages/
+    
+    - name: Add Local NuGet Source
+      run: |
+        dotnet nuget add source "${{ github.workspace }}/LocalPackages" --name LocalPackages
+    
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        dotnet restore UserService.sln \
+          --source "https://api.nuget.org/v3/index.json" \
+          --source "${{ github.workspace }}/LocalPackages"
+    
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build UserService.sln --configuration Release --no-restore
+    
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test UserService.sln --configuration Release --no-build --verbosity normal
