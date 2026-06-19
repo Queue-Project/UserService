@@ -1,8 +1,6 @@
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 using QUserService.Domain.Enums;
@@ -15,10 +13,10 @@ public class CreateAvailabilityScheduleCommandHandler : IRequestHandler<CreateAv
 {
     private readonly ILogger<CreateAvailabilityScheduleCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
 
     public CreateAvailabilityScheduleCommandHandler(ILogger<CreateAvailabilityScheduleCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor)
+        IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -28,7 +26,7 @@ public class CreateAvailabilityScheduleCommandHandler : IRequestHandler<CreateAv
     public async Task<List<AvailabilityScheduleResponseModel>> Handle(CreateAvailabilityScheduleCommand request,
         CancellationToken cancellationToken)
     {
-        var currentEmployee = await _contextAccessor.CurrentEmployee(_dbContext, cancellationToken);
+        var currentEmployee = await _contextAccessor.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
 
         _logger.LogInformation("Adding new schedule for EmployeeId {id}", currentEmployee.Id);
 

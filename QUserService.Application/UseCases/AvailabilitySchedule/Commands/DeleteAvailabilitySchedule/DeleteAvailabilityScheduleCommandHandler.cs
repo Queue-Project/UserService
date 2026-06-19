@@ -1,10 +1,8 @@
 using System.Net;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Models;
 
@@ -14,10 +12,10 @@ public class DeleteAvailabilityScheduleCommandHandler : IRequestHandler<DeleteAv
 {
     private readonly ILogger<DeleteAvailabilityScheduleCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
 
     public DeleteAvailabilityScheduleCommandHandler(ILogger<DeleteAvailabilityScheduleCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor)
+        IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -29,7 +27,7 @@ public class DeleteAvailabilityScheduleCommandHandler : IRequestHandler<DeleteAv
         _logger.LogInformation("Deleting schedule with Id: {id}, DeleteAllSlots: {delete}", request.Id,
             request.DeleteAllSlots);
 
-        var currentEmployee =await _contextAccessor.CurrentEmployee(_dbContext, cancellationToken);
+        var currentEmployee =await _contextAccessor.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
         
         var dbAvailabilitySchedule =
             await _dbContext.AvailabilitySchedules

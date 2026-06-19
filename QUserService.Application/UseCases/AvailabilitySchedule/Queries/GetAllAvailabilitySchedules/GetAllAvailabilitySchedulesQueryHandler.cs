@@ -1,8 +1,6 @@
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 
@@ -13,9 +11,9 @@ public class GetAllAvailabilitySchedulesQueryHandler: IRequestHandler<GetAllAvai
     private const int PageSize = 15;
     private readonly ILogger<GetAllAvailabilitySchedulesQueryHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
 
-    public GetAllAvailabilitySchedulesQueryHandler(ILogger<GetAllAvailabilitySchedulesQueryHandler> logger, IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor)
+    public GetAllAvailabilitySchedulesQueryHandler(ILogger<GetAllAvailabilitySchedulesQueryHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -27,7 +25,7 @@ public class GetAllAvailabilitySchedulesQueryHandler: IRequestHandler<GetAllAvai
         _logger.LogInformation("Getting all companies. PageNumber: {pageNumber}, PageSize: {pageSize}", request.PageNumber,
             PageSize);
 
-        var currentEmployee = await _contextAccessor.CurrentEmployee(_dbContext, cancellationToken);
+        var currentEmployee = await _contextAccessor.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
         var totalCount = await _dbContext.AvailabilitySchedules
             .Where(s=>s.EmployeeId== currentEmployee.Id)
             .CountAsync(cancellationToken);

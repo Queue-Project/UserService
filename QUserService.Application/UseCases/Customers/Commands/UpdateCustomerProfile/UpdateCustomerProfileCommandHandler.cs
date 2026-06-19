@@ -1,12 +1,10 @@
 using System.Net;
 using MassTransit;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QAuthService.Contracts.Events.CustomerEvent;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 
@@ -16,16 +14,15 @@ public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustome
 {
     private readonly ILogger<UpdateCustomerProfileCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
-
+    private readonly ICurrentUserService _currentUserService;
     private readonly IPublishEndpoint _publishEndpoint;
 
     public UpdateCustomerProfileCommandHandler(ILogger<UpdateCustomerProfileCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor, IPublishEndpoint publishEndpoint)
+        IUserServiceApplicationDbContext dbContext, ICurrentUserService currentUserService, IPublishEndpoint publishEndpoint )
     {
         _logger = logger;
         _dbContext = dbContext;
-        _contextAccessor = contextAccessor;
+        _currentUserService = currentUserService;
         _publishEndpoint = publishEndpoint;
     }
 
@@ -35,7 +32,7 @@ public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustome
         _logger.LogInformation("Updating customer profile");
 
 
-        var currentCustomer = await _contextAccessor.CurrentCustomer(_dbContext, cancellationToken);
+        var currentCustomer = await _currentUserService.GetCurrentCustomerAsync(_dbContext, cancellationToken);
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(s => s.CustomerId == currentCustomer.Id,
             cancellationToken);

@@ -3,14 +3,12 @@ using BranchService.Contracts.Interfaces;
 using BranchService.Contracts.Requests;
 using MassTransit;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QAuthService.Contracts.Events.EmployeeEvent;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Enums;
 using QUserService.Domain.Models;
@@ -23,12 +21,12 @@ public class CreateEmployeeRoleCommandHandler : IRequestHandler<CreateEmployeeRo
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IPasswordHasher<UserEntity> _passwordHasher;
     private readonly IBranchService _branchService;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
     private readonly IPublishEndpoint _publishEndpoint;
 
     public CreateEmployeeRoleCommandHandler(ILogger<CreateEmployeeRoleCommandHandler> logger,
         IUserServiceApplicationDbContext dbContext, IPasswordHasher<UserEntity> passwordHasher,
-        IHttpContextAccessor contextAccessor,
+        ICurrentUserService contextAccessor,
         IBranchService branchService, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
@@ -73,7 +71,7 @@ public class CreateEmployeeRoleCommandHandler : IRequestHandler<CreateEmployeeRo
                 "ServiceId is required for creating an employee");
         }
 
-        var currentEmployee = await _contextAccessor.CurrentEmployee(_dbContext, cancellationToken);
+        var currentEmployee = await _contextAccessor.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
 
         var companyId = currentEmployee.CompanyId;
 

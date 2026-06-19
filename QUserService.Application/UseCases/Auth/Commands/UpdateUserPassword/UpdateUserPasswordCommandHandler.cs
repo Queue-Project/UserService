@@ -1,10 +1,8 @@
 using System.Net;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Models;
 
@@ -14,11 +12,11 @@ public class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPasswo
 {
     private readonly ILogger<UpdateUserPasswordCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
     private readonly IPasswordHasher<UserEntity> _passwordHasher;
 
     public UpdateUserPasswordCommandHandler(ILogger<UpdateUserPasswordCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor,
+        IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor,
         IPasswordHasher<UserEntity> passwordHasher)
     {
         _logger = logger;
@@ -30,7 +28,7 @@ public class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPasswo
     public async Task<bool> Handle(UpdateUserPasswordCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Updating user password");
-        var currentUser = await _contextAccessor.CurrentUser(_dbContext, cancellationToken);
+        var currentUser = await _contextAccessor.GetCurrentUserAsync(_dbContext, cancellationToken);
 
         var currentPassword =
             _passwordHasher.VerifyHashedPassword(currentUser, currentUser.PasswordHash, request.OldPassword);

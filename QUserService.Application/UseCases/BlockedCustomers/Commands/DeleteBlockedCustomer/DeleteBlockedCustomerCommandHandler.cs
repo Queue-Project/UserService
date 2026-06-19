@@ -1,12 +1,10 @@
 using System.Net;
 using MassTransit;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QAuthService.Contracts.Events.BlockedCustomerEvent;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Models;
 
@@ -16,10 +14,10 @@ public class DeleteBlockedCustomerCommandHandler: IRequestHandler<DeleteBlockedC
 {
     private readonly ILogger<DeleteBlockedCustomerCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public DeleteBlockedCustomerCommandHandler(ILogger<DeleteBlockedCustomerCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor, IPublishEndpoint publishEndpoint)
+    public DeleteBlockedCustomerCommandHandler(ILogger<DeleteBlockedCustomerCommandHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -31,7 +29,7 @@ public class DeleteBlockedCustomerCommandHandler: IRequestHandler<DeleteBlockedC
     {
         _logger.LogInformation("Unblocking customer with Id {id}.", request.Id);
 
-        var currentEmployee = await _contextAccessor.CurrentEmployee(_dbContext, cancellationToken);
+        var currentEmployee = await _contextAccessor.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
         var companyId = currentEmployee.CompanyId;
         
         var dbBlockedCustomer =

@@ -3,12 +3,10 @@ using BranchService.Contracts.Interfaces;
 using BranchService.Contracts.Requests;
 using MassTransit;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QAuthService.Contracts.Events.BlockedCustomerEvent;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 using QUserService.Domain.Models;
@@ -20,10 +18,10 @@ public class CreateBlockedCustomerCommandHandler: IRequestHandler<CreateBlockedC
     private readonly ILogger<CreateBlockedCustomerCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IBranchService _branchService;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public CreateBlockedCustomerCommandHandler(ILogger<CreateBlockedCustomerCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor, IBranchService branchService, IPublishEndpoint publishEndpoint)
+    public CreateBlockedCustomerCommandHandler(ILogger<CreateBlockedCustomerCommandHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor, IBranchService branchService, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -44,7 +42,7 @@ public class CreateBlockedCustomerCommandHandler: IRequestHandler<CreateBlockedC
             throw new HttpStatusCodeException(HttpStatusCode.NotFound, nameof(CustomerEntity));
         }
 
-        var currentEmployee = await _contextAccessor.CurrentEmployee(_dbContext, cancellationToken);
+        var currentEmployee = await _contextAccessor.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
         var companyId = currentEmployee.CompanyId;
 
         var validationResponse = await _branchService.CheckCompanyId(new CompanyRequest

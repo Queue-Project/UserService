@@ -50,6 +50,7 @@ builder.Services.AddFluentValidation(fv =>
 builder.Services.AddScoped<IPasswordHasher<UserEntity>, PasswordHasher<UserEntity>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserServiceApplicationDbContext, UserServiceDbContext>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {

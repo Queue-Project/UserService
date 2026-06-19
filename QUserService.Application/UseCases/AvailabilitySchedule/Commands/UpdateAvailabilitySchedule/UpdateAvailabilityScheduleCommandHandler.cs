@@ -1,10 +1,8 @@
 using System.Net;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 using QUserService.Domain.Enums;
@@ -16,9 +14,9 @@ public class UpdateAvailabilityScheduleCommandHandler: IRequestHandler<UpdateAva
 {
     private readonly ILogger<UpdateAvailabilityScheduleCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
 
-    public UpdateAvailabilityScheduleCommandHandler(ILogger<UpdateAvailabilityScheduleCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor)
+    public UpdateAvailabilityScheduleCommandHandler(ILogger<UpdateAvailabilityScheduleCommandHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -39,7 +37,7 @@ public class UpdateAvailabilityScheduleCommandHandler: IRequestHandler<UpdateAva
             throw new HttpStatusCodeException(HttpStatusCode.NotFound, nameof(AvailabilityScheduleEntity));
         }
 
-        var currentEmployee =await _contextAccessor.CurrentEmployee(_dbContext, cancellationToken);
+        var currentEmployee =await _contextAccessor.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
         var employee =
             await _dbContext.Employees.FirstOrDefaultAsync(s => currentEmployee.Id == dbAvailabilitySchedule.EmployeeId,
                 cancellationToken);

@@ -1,9 +1,7 @@
 using MassTransit;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using QAuthService.Contracts.Events.CustomerEvent;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 
 namespace QUserService.Application.UseCases.Auth.Commands.DeleteCustomerAccount;
@@ -12,10 +10,10 @@ public class DeleteCustomerAccountCommandHandler: IRequestHandler<DeleteCustomer
 {
     private readonly ILogger<DeleteCustomerAccountCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public DeleteCustomerAccountCommandHandler(ILogger<DeleteCustomerAccountCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor, IPublishEndpoint publishEndpoint)
+    public DeleteCustomerAccountCommandHandler(ILogger<DeleteCustomerAccountCommandHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -26,8 +24,8 @@ public class DeleteCustomerAccountCommandHandler: IRequestHandler<DeleteCustomer
     public async Task<bool> Handle(DeleteCustomerAccountCommand request, CancellationToken cancellationToken)
     {
         
-        var user = await _contextAccessor.CurrentUser(_dbContext, cancellationToken);
-        var customer = await _contextAccessor.CurrentCustomer(_dbContext, cancellationToken);
+        var user = await _contextAccessor.GetCurrentUserAsync(_dbContext, cancellationToken);
+        var customer = await _contextAccessor.GetCurrentCustomerAsync(_dbContext, cancellationToken);
 
         _logger.LogInformation("Deleting customer account {CustomerId}", customer.Id);
 

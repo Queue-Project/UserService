@@ -1,10 +1,8 @@
 using System.Net;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
-using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 
@@ -14,9 +12,9 @@ public class GetCustomerProfileQueryHandler: IRequestHandler<GetCustomerProfileQ
 {
     private readonly ILogger<GetCustomerProfileQueryHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ICurrentUserService _contextAccessor;
 
-    public GetCustomerProfileQueryHandler(ILogger<GetCustomerProfileQueryHandler> logger, IUserServiceApplicationDbContext dbContext, IHttpContextAccessor contextAccessor)
+    public GetCustomerProfileQueryHandler(ILogger<GetCustomerProfileQueryHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -27,7 +25,7 @@ public class GetCustomerProfileQueryHandler: IRequestHandler<GetCustomerProfileQ
     {
         _logger.LogInformation("Getting customer profile");
         
-        var currentCustomer = await _contextAccessor.CurrentCustomer(_dbContext, cancellationToken);
+        var currentCustomer = await _contextAccessor.GetCurrentCustomerAsync(_dbContext, cancellationToken);
         var user = await _dbContext.Users.FirstOrDefaultAsync(s => s.CustomerId == currentCustomer.Id, cancellationToken);
         if (user==null)
         {
