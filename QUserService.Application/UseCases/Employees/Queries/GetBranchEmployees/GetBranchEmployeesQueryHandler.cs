@@ -77,22 +77,9 @@ public class
 
         foreach (var employee in dbEmployees)
         {
-            // var reviews = await _dbContext.Reviews
-            //     .Include(s => s.Queue)
-            //     .Where(s => s.Queue.EmployeeId == employee.Id)
-            //     .ToListAsync(cancellationToken);
+            
 
-            double averageRating = 0;
-
-            // if (reviews.Any())
-            // {
-            //     averageRating = reviews.Average(s => s.Grade);
-            // }
-            //
-            // var complaints = await _dbContext.Complaints
-            //     .Include(s => s.Queue)
-            //     .Where(s => s.Queue.EmployeeId == employee.Id)
-            //     .ToListAsync(cancellationToken);
+          
 
             response.Add(new EmployeeInfoResponseModel
             {
@@ -104,9 +91,7 @@ public class
                 LastName = employee.LastName,
                 Position = employee.Position,
                 PhoneNumber = employee.PhoneNumber,
-                // TotalReviews = reviews.Count,
-                AverageRating = averageRating,
-                // TotalComplaints = complaints.Count
+             
             });
         }
 

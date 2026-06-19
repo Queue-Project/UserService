@@ -2,40 +2,40 @@ using System.Net;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
-using QAuthService.Contracts.Events.CustomerEvent;
+using QAuthService.Contracts.Events.EmployeeEvent;
 using QUserService.Application.Exceptions;
-using QUserService.Application.UseCases.Customers.Commands.DeleteCustomer;
+using QUserService.Application.UseCases.Employees.Commands.DeleteEmployee;
 using QUserService.Infrastructure.Persistence.Database;
 using Shouldly;
 using UserService.UnitTest.UserService.Application.Tests.Infrastructure;
 
-namespace UserService.UnitTest.UserService.Application.Tests.CustomerTests;
+namespace UserService.UnitTest.UserService.Application.Tests.EmployeeTests;
 
-public class DeleteCustomerCommandTests
+public class DeleteEmployeeCommandHandlerTests
 {
     private readonly UserServiceDbContext _dbContext;
     private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
-    private readonly Mock<ILogger<DeleteCustomerCommandHandler>> _mockLogger;
-    private readonly DeleteCustomerCommandHandler _handler;
+    private readonly Mock<ILogger<DeleteEmployeeCommandHandler>> _mockLogger;
+    private readonly DeleteEmployeeCommandHandler _handler;
 
-    public DeleteCustomerCommandTests()
+    public DeleteEmployeeCommandHandlerTests()
     {
         _dbContext = TestDbContextFactory.Create();
         _mockPublishEndpoint = new Mock<IPublishEndpoint>();
-        _mockLogger = new Mock<ILogger<DeleteCustomerCommandHandler>>();
-        _handler = new DeleteCustomerCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object);
+        _mockLogger = new Mock<ILogger<DeleteEmployeeCommandHandler>>();
+        _handler = new DeleteEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object);
     }
 
     [Fact]
-    public async Task Handler_Should_Delete_Customer()
+    public async Task Handler_Should_Delete_Employee()
     {
         //Arrange
-        var company = TestDataSeeder.CreateCustomer();
+        var company = TestDataSeeder.CreateEmployee();
 
-        await _dbContext.Customer.AddAsync(company, CancellationToken.None);
+        await _dbContext.Employees.AddAsync(company, CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
-        var command = new DeleteCustomerCommand(1);
+        var command = new DeleteEmployeeCommand(1);
 
 
         //Act
@@ -50,7 +50,7 @@ public class DeleteCustomerCommandTests
     public async Task Handler_Should_Return_NotFound()
     {
         //Arrange
-        var command = new DeleteCustomerCommand(1);
+        var command = new DeleteEmployeeCommand(1);
 
 
         //Act
@@ -60,17 +60,18 @@ public class DeleteCustomerCommandTests
         var exception = result.ShouldThrow<HttpStatusCodeException>();
         exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
-    
+
+
     [Fact]
     public async Task Handler_Should_Publish_Event()
     {
         //Arrange
-        var company = TestDataSeeder.CreateCustomer();
+        var company = TestDataSeeder.CreateEmployee();
 
-        await _dbContext.Customer.AddAsync(company, CancellationToken.None);
+        await _dbContext.Employees.AddAsync(company, CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
-        var command = new DeleteCustomerCommand(1);
+        var command = new DeleteEmployeeCommand(1);
 
 
         //Act
@@ -78,7 +79,7 @@ public class DeleteCustomerCommandTests
 
         //Assert
 
-        _mockPublishEndpoint.Verify(s => s.Publish(It.IsAny<CustomerDeletedEvent>(),
+        _mockPublishEndpoint.Verify(s => s.Publish(It.IsAny<EmployeeDeletedEvent>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

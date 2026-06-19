@@ -7,18 +7,17 @@ using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
-using QUserService.Application.UseCases.Employees.Queries.GetBranchEmployees;
 
 namespace QUserService.Application.UseCases.Employees.Queries.GetServiceEmployees;
 
 public class GetServiceEmployeesQueryHandler: IRequestHandler<GetServiceEmployeesQuery, PagedResponse<EmployeeInfoResponseModel>>
 {
     private const int PageSize = 15;
-    private readonly ILogger<GetBranchEmployeesQueryHandler> _logger;
+    private readonly ILogger<GetServiceEmployeesQueryHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IBranchService _branchService;
 
-    public GetServiceEmployeesQueryHandler(ILogger<GetBranchEmployeesQueryHandler> logger, IUserServiceApplicationDbContext dbContext, IBranchService branchService)
+    public GetServiceEmployeesQueryHandler(ILogger<GetServiceEmployeesQueryHandler> logger, IUserServiceApplicationDbContext dbContext, IBranchService branchService)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -73,23 +72,7 @@ public class GetServiceEmployeesQueryHandler: IRequestHandler<GetServiceEmployee
 
         foreach (var employee in dbEmployees)
         {
-            // var reviews = await _dbContext.Reviews
-            //     .Include(s => s.Queue)
-            //     .Where(s => s.Queue.EmployeeId == employee.Id)
-            //     .ToListAsync(cancellationToken);
-
-            double averageRating = 0;
-
-            // if (reviews.Any())
-            // {
-            //     averageRating = reviews.Average(s => s.Grade);
-            // }
-            //
-            // var complaints = await _dbContext.Complaints
-            //     .Include(s => s.Queue)
-            //     .Where(s => s.Queue.EmployeeId == employee.Id)
-            //     .ToListAsync(cancellationToken);
-            
+           
             response.Add(new EmployeeInfoResponseModel
             {
                 Id = employee.Id,
@@ -100,9 +83,7 @@ public class GetServiceEmployeesQueryHandler: IRequestHandler<GetServiceEmployee
                 LastName = employee.LastName,
                 Position = employee.Position,
                 PhoneNumber = employee.PhoneNumber,
-                // TotalReviews = reviews.Count,
-                AverageRating = averageRating,
-                // TotalComplaints = complaints.Count
+              
             });
             
         }
