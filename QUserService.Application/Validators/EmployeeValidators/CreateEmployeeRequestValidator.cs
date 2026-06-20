@@ -7,8 +7,11 @@ public class CreateEmployeeRequestValidator: AbstractValidator<CreateEmployeeCom
 {
     public CreateEmployeeRequestValidator()
     {
+        RuleFor(x => x.BranchId)
+            .GreaterThan(0).WithMessage("BranchId must be a positive number and greater than 0.");
+        
         RuleFor(x => x.ServiceId)
-            .GreaterThan(0).WithMessage("Service ID must be a positive number.");
+            .GreaterThan(0).WithMessage("ServiceId must be a positive number and greater than 0.");
 
         RuleFor(x => x.Firstname)
             .NotEmpty().WithMessage("Firstname is required.")
