@@ -21,7 +21,6 @@ public class TestDataSeeder
     {
         return new List<CustomerEntity>
         {
-
             new CustomerEntity()
             {
                 Id = 1,
@@ -65,7 +64,7 @@ public class TestDataSeeder
             CreatedAt = DateTime.UtcNow
         };
     }
-    
+
     public static EmployeeEntity CreateEmployee()
     {
         return new EmployeeEntity
@@ -146,6 +145,50 @@ public class TestDataSeeder
         };
     }
 
+    public static UserEntity CreateUserCustomerWithoutEmailVerification()
+    {
+        return new UserEntity
+        {
+            Id = 1,
+            CustomerId = 1,
+            EmailAddress = "test@gmail.com",
+            PasswordHash = "Password-hash-1234",
+            Roles = UserRoles.Customer,
+            IsEmailVerified = false,
+            EmailVerificationCode = null,
+            EmailVerificationCodeExpires = null,
+            VerifiedAt = null,
+            ResendCount = 0,
+            PasswordResetCode = null,
+            PasswordResetExpiry = null,
+            EmployeeId = null,
+            CreatedAt = DateTime.UtcNow,
+            LastCodeSentAt = null
+        };
+    }
+
+    public static UserEntity CreateUserCustomerWithLastCodeSent()
+    {
+        return new UserEntity
+        {
+            Id = 1,
+            CustomerId = 1,
+            EmailAddress = "test@gmail.com",
+            PasswordHash = "Password-hash-1234",
+            Roles = UserRoles.Customer,
+            IsEmailVerified = false,
+            EmailVerificationCode = null,
+            EmailVerificationCodeExpires = null,
+            VerifiedAt = null,
+            ResendCount = 0,
+            PasswordResetCode = null,
+            PasswordResetExpiry = null,
+            EmployeeId = null,
+            CreatedAt = DateTime.UtcNow,
+            LastCodeSentAt = DateTime.UtcNow
+        };
+    }
+
     public static UserEntity CreateUserCompanyAdmin()
     {
         return new UserEntity
@@ -171,11 +214,33 @@ public class TestDataSeeder
     {
         return new UserEntity
         {
-            Id = 1,
+            Id = 2,
             CustomerId = null,
             EmailAddress = "test@gmail.com",
             PasswordHash = "Password-hash-1234",
             Roles = UserRoles.Employee,
+            IsEmailVerified = true,
+            EmailVerificationCode = null,
+            EmailVerificationCodeExpires = null,
+            VerifiedAt = null,
+            ResendCount = 0,
+            PasswordResetCode = null,
+            PasswordResetExpiry = null,
+            EmployeeId = 1,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+
+    public static UserEntity CreateSystemAdmin()
+    {
+        return new UserEntity
+        {
+            Id = 1,
+            CustomerId = null,
+            EmailAddress = "test@gmail.com",
+            PasswordHash = "Password-hash-1234",
+            Roles = UserRoles.SystemAdmin,
             IsEmailVerified = true,
             EmailVerificationCode = null,
             EmailVerificationCodeExpires = null,
@@ -240,5 +305,73 @@ public class TestDataSeeder
         };
     }
 
-    
+    public static RefreshTokenEntity CreateToken()
+    {
+        return new RefreshTokenEntity
+        {
+            Id = 1,
+            UserId = 1,
+            Token = "generatedToken",
+            CreatedAt = DateTime.UtcNow,
+            Expires = DateTime.UtcNow.AddDays(1),
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            RevokedAt = null
+        };
+    }
+
+    public static AvailabilityScheduleEntity CreateSchedule()
+    {
+        return new AvailabilityScheduleEntity
+        {
+            EmployeeId = 1,
+            GroupId = null,
+            Description = "Before lunch time working hours",
+            AvailableSlots = new List<Interval<DateTimeOffset>>
+            {
+                new Interval<DateTimeOffset>(DateTimeOffset.UtcNow.Date.AddHours(8),
+                    DateTimeOffset.UtcNow.Date.AddHours(12))
+            },
+            RepeatSlot = RepeatSlot.None,
+            RepeatDuration = 0,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static List<AvailabilityScheduleEntity> CreateSchedules()
+    {
+        return new List<AvailabilityScheduleEntity>
+        {
+            new AvailabilityScheduleEntity
+            {
+                Id = 1,
+                EmployeeId = 1,
+                GroupId = null,
+                Description = "Before lunch time working hours",
+                AvailableSlots = new List<Interval<DateTimeOffset>>
+                {
+                    new Interval<DateTimeOffset>(DateTimeOffset.UtcNow.Date.AddHours(8),
+                        DateTimeOffset.UtcNow.Date.AddHours(12))
+                },
+                RepeatSlot = RepeatSlot.None,
+                RepeatDuration = 0,
+                CreatedAt = DateTime.UtcNow
+            },
+            new AvailabilityScheduleEntity
+            {
+                Id = 2,
+                EmployeeId = 1,
+                GroupId = null,
+                Description = "After lunch time working hours",
+                AvailableSlots = new List<Interval<DateTimeOffset>>
+                {
+                    new Interval<DateTimeOffset>(DateTimeOffset.UtcNow.Date.AddHours(13),
+                        DateTimeOffset.UtcNow.Date.AddHours(18))
+                },
+                RepeatSlot = RepeatSlot.None,
+                RepeatDuration = 0,
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+    }
 }

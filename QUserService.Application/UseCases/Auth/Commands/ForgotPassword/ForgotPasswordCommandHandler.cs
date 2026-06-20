@@ -27,7 +27,7 @@ public class ForgotPasswordCommandHandler: IRequestHandler<ForgotPasswordCommand
         if (user ==null)
         {
             _logger.LogError("User with Email {EmailAddress} not found", request.EmailAddress);
-            return true;
+            return false;
         }
 
         var code = new Random().Next(100000, 999999).ToString();

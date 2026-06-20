@@ -3,41 +3,42 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
-using QUserService.Application.UseCases.BlockedCustomers.Queries.GetAllBlockedCustomers;
+using QUserService.Application.UseCases.AvailabilitySchedule.Queries.GetAllAvailabilitySchedules;
 using QUserService.Infrastructure.Persistence.Database;
 using Shouldly;
 using UserService.UnitTest.UserService.Application.Tests.Infrastructure;
 
-namespace UserService.UnitTest.UserService.Application.Tests.BlockedCustomerTests;
+namespace UserService.UnitTest.UserService.Application.Tests.AvailabilityScheduleTests;
 
-public class GetAllBlockedCustomersQueryHandlerTests
+public class GetAllAvailabilitySchedulesQueryHandlerTests
 {
-    private readonly Mock<ILogger<GetAllBlockedCustomersQueryHandler>> _mockLogger;
-    private readonly UserServiceDbContext _dbContext;
+    private readonly Mock<ILogger<GetAllAvailabilitySchedulesQueryHandler>> _mockLogger;
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
-    private readonly GetAllBlockedCustomersQueryHandler _handler;
+    private readonly UserServiceDbContext _dbContext;
+    private readonly GetAllAvailabilitySchedulesQueryHandler _handler;
 
-    public GetAllBlockedCustomersQueryHandlerTests()
+    public GetAllAvailabilitySchedulesQueryHandlerTests()
     {
-        _mockLogger = new Mock<ILogger<GetAllBlockedCustomersQueryHandler>>();
-        _dbContext = TestDbContextFactory.Create();
+        _mockLogger = new Mock<ILogger<GetAllAvailabilitySchedulesQueryHandler>>();
         _mockCurrentUserService = new Mock<ICurrentUserService>();
-        _handler = new GetAllBlockedCustomersQueryHandler(_mockLogger.Object, _dbContext, _mockCurrentUserService.Object);
+        _dbContext = TestDbContextFactory.Create();
+        _handler = new GetAllAvailabilitySchedulesQueryHandler(_mockLogger.Object, _dbContext,
+            _mockCurrentUserService.Object);
     }
-    
+
+
     [Fact]
-    public async Task Should_Return_BlockedCustomers_Successfully()
+    public async Task Handler_Should_Return_Schedules_Successfully()
     {
-        
         //Arrange
         var employee = TestDataSeeder.CreateEmployee();
-        var blockedCustomers = TestDataSeeder.CreateBlockedCustomers();
+        var schedules = TestDataSeeder.CreateSchedules();
         await _dbContext.Employees.AddAsync(employee);
-        await _dbContext.BlockedCustomers.AddRangeAsync(blockedCustomers, CancellationToken.None);
+        await _dbContext.AvailabilitySchedules.AddRangeAsync(schedules, CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
 
-        var query = new GetAllBlockedCustomersQuery(1);
+        var query = new GetAllAvailabilitySchedulesQuery(1);
 
         _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
             .ReturnsAsync(employee);
@@ -50,12 +51,13 @@ public class GetAllBlockedCustomersQueryHandlerTests
         result.ShouldNotBeNull();
         result.HasNextPage.ShouldBe(false);
         result.TotalPages.ShouldBe(1);
-        result.TotalCount.ShouldBe(3);
+        result.TotalCount.ShouldBe(2);
 
-        var customer = result.Items.FirstOrDefault();
-        customer!.Id.ShouldBe(1);
+        var schedule = result.Items.FirstOrDefault();
+        schedule!.Id.ShouldBe(1);
+        schedule.GroupId.ShouldBe(null);
     }
-
+    
     [Fact]
     public async Task Should_Return_BlockedCustomersEmptyList()
     {
@@ -65,7 +67,7 @@ public class GetAllBlockedCustomersQueryHandlerTests
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
 
-        var query = new GetAllBlockedCustomersQuery(1);
+        var query = new GetAllAvailabilitySchedulesQuery(1);
 
         _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
             .ReturnsAsync(employee);
@@ -77,22 +79,18 @@ public class GetAllBlockedCustomersQueryHandlerTests
         
         result.TotalCount.ShouldBe(0);
         result.HasNextPage.ShouldBe(false);
-        var blockedList = result.Items;
-        blockedList.ShouldBeEmpty();
-        
+        var scheduleList = result.Items;
+        scheduleList.ShouldBeEmpty();
     }
     
+        
     [Fact]
     public async Task Handler_Should_Throw_Exception_When_CurrentEmployeeNotFound()
     {
         //Arrange
-
-        var blockedCustomer = TestDataSeeder.CreateBlockedCustomer();
-        await _dbContext.BlockedCustomers.AddAsync(blockedCustomer);
         
-        await _dbContext.SaveChangesAsync(CancellationToken.None);
         
-        var query = new GetAllBlockedCustomersQuery(1);
+        var query = new GetAllAvailabilitySchedulesQuery(1);
 
         var expectedResponse = new HttpStatusCodeException(HttpStatusCode.NotFound, "Employee not found");
         
@@ -108,4 +106,5 @@ public class GetAllBlockedCustomersQueryHandlerTests
         exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         exception.Message.ShouldContain($"Employee not found");
     }
+    
 }

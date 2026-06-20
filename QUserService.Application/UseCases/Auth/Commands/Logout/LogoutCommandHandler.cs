@@ -5,7 +5,7 @@ using QUserService.Application.Interfaces;
 
 namespace QUserService.Application.UseCases.Auth.Commands.Logout;
 
-public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
+public class LogoutCommandHandler : IRequestHandler<LogoutCommand, bool>
 {
     private readonly ILogger<LogoutCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
@@ -16,7 +16,7 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
         _dbContext = dbContext;
     }
 
-    public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Logout with {token} refresh token", request.RefreshToken);
         var stored = await _dbContext.RefreshTokens
@@ -25,7 +25,7 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
         if (stored == null)
         {
             _logger.LogWarning("Token was not found");
-            return;
+            return false;
         }
 
         stored.RevokedAt = DateTime.UtcNow;
@@ -33,5 +33,7 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Token successfully updated");
+        return true;
+        
     }
 }
