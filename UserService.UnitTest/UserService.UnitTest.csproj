@@ -27,4 +27,8 @@
       <ProjectReference Include="..\QUserService.Infrastructure\QUserService.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="UserService.API.Tests\" />
+    </ItemGroup>
+
 </Project>
