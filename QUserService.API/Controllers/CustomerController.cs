@@ -29,7 +29,7 @@ public class CustomerController : ControllerBase
 
     [Authorize(Roles = nameof(UserRoles.SystemAdmin) + "," + nameof(UserRoles.CompanyAdmin))]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CustomerResponseModel>>> GetAllAsync([FromQuery] int pageNumber = 1)
+    public async Task<ActionResult<PagedResponse<CustomerResponseModel>>> GetAllAsync([FromQuery] int pageNumber = 1)
     {
         _logger.LogInformation("Received request to get all customers. PageNumber: {PageNumber}, PageSize: 15",
             pageNumber);
