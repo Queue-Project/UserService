@@ -7,9 +7,7 @@ public class UpdateEmployeeRequestValidator: AbstractValidator<UpdateEmployeeReq
 {
     public UpdateEmployeeRequestValidator()
     {
-        RuleFor(x => x.ServiceId)
-            .GreaterThan(0).WithMessage("Service ID must be a positive number.");
-
+        
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("Firstname is required.")
             .MinimumLength(2).WithMessage("First name must be at least 2 characters.")

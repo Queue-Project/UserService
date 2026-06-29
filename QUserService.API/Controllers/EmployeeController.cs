@@ -92,7 +92,7 @@ public class EmployeeController : ControllerBase
     public async Task<IActionResult> PutAsync([FromRoute] int id, [FromBody] UpdateEmployeeRequest request)
     {
         _logger.LogInformation("Received request to update employee with Id: {employeeId}", id);
-        var command = new UpdateEmployeeCommand(id, request.ServiceId, request.FirstName, request.LastName,
+        var command = new UpdateEmployeeCommand(id,  request.FirstName, request.LastName,
             request.Position, request.PhoneNumber);
         var update = await _mediator.Send(command);
         _logger.LogInformation("Successfully updated employee with Id: {employeeId}", id);

@@ -11,6 +11,7 @@ public class CreateAvailabilityScheduleRequestValidator: AbstractValidator<Creat
       
 
         RuleFor(x => x.Description)
+            .NotEmpty().WithMessage("Description is required")
             .MaximumLength(500).WithMessage("Description must be at most 500 characters");
 
         RuleFor(x => x.RepeatSlot)

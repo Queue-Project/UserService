@@ -50,7 +50,8 @@ public class ResendVerificationCommandHandler: IRequestHandler<ResendVerificatio
             user.LastCodeSentAt.HasValue &&
             (DateTime.UtcNow - user.LastCodeSentAt.Value).TotalHours < 1)
         {
-            throw new Exception("Too many attempts. Try later.");
+            _logger.LogWarning("Please request after 1 minute");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Too many attempts. Try later.");
         }
 
         var code = new Random().Next(100000, 999999).ToString();
