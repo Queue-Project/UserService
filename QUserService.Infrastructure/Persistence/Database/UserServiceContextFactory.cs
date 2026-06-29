@@ -8,7 +8,7 @@ public class UserServiceContextFactory: IDesignTimeDbContextFactory<UserServiceD
     public UserServiceDbContext CreateDbContext(string[] args)
     {
         var optionBuilder = new DbContextOptionsBuilder<UserServiceDbContext>();
-        optionBuilder.UseNpgsql("Host=localhost;Port=5432;Database=UserService;Username=postgres;Password=b.sh.3242");
+        optionBuilder.UseNpgsql("Host=host.docker.internal;Port=5432;Database=UserService;Username=postgres;Password=b.sh.3242");
         return new UserServiceDbContext(optionBuilder.Options);
     }
 }

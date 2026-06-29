@@ -26,9 +26,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5003, listenOptions => { listenOptions.Protocols = HttpProtocols.Http2; });
+    options.ListenAnyIP(5003, listenOptions => { listenOptions.Protocols = HttpProtocols.Http2; });
 
-    options.ListenLocalhost(5004, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1; });
+    options.ListenAnyIP(5004, listenOptions => { listenOptions.Protocols = HttpProtocols.Http1; });
 });
 
 var branchServiceUrl = builder.Configuration["Services:BranchService"]
