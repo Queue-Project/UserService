@@ -26,7 +26,7 @@ public class FavoriteEmployeesController : ControllerBase
     [Authorize(Roles = nameof(UserRoles.Customer))]
     [HttpGet("get-all-employees-from-favorite-list")]
     public async Task<ActionResult<PagedResponse<EmployeeResponseModel>>> GetAllEmployeesFromFavoriteListAsync(
-        [FromRoute] int pageNumber = 1)
+        [FromQuery] int pageNumber = 1)
     {
         _logger.LogInformation(
             "Received request to get all employees from favorite list. PageNumber: {PageNUmber}, PageSize: 15",

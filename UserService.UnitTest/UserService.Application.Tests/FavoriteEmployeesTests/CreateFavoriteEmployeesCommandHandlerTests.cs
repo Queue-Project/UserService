@@ -102,4 +102,33 @@ public class CreateFavoriteEmployeesCommandHandlerTests
         exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         exception.Message.ShouldBe($"Employee with Id {command.EmployeeId} not found");
     }
+    
+    [Fact]
+    public async Task Handler_Should_Throw_Exception_When_Employee_Already_Added()
+    {
+        // Arrange
+        var customer = TestDataSeeder.CreateCustomer();
+        var favoriteList = TestDataSeeder.CreateFavoriteEmployee();
+        var employee = TestDataSeeder.CreateEmployee();
+        await _dbContext.Employees.AddAsync(employee, CancellationToken.None);
+        await _dbContext.Customer.AddAsync(customer, CancellationToken.None);
+        await _dbContext.FavoriteEmployeeEntities.AddAsync(favoriteList, CancellationToken.None);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+        _mockCurrentUserService.Setup(s => s.GetCurrentCustomerAsync(_dbContext, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(customer);
+
+
+        var command = new CreateFavoriteEmployeesCommand(
+            1
+        );
+        
+        // Act
+        var result =  _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        var exception = await result.ShouldThrowAsync<HttpStatusCodeException>();
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        exception.Message.ShouldBe($"You have already added this employee to favorite list!");
+    }
 }

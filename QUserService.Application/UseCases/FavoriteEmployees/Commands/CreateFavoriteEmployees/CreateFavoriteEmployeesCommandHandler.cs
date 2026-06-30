@@ -38,6 +38,14 @@ public class CreateFavoriteEmployeesCommandHandler : IRequestHandler<CreateFavor
                 $"Employee with Id {request.EmployeeId} not found");
         }
 
+
+        var isDouble = _dbContext.FavoriteEmployeeEntities.Any(s => s.EmployeeId == request.EmployeeId);
+        if (isDouble)
+        {
+            _logger.LogError("Already added Employee with Id {EmployeeId} favorite list", request.EmployeeId);
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest,"You have already added this employee to favorite list!");
+        }
+
         var favoriteEmployee = new FavoriteEmployeesEntity
         {
             CustomerId = customer.Id,
@@ -47,8 +55,8 @@ public class CreateFavoriteEmployeesCommandHandler : IRequestHandler<CreateFavor
 
         await _dbContext.FavoriteEmployeeEntities.AddAsync(favoriteEmployee, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        
-        
+
+
         return true;
     }
 }
