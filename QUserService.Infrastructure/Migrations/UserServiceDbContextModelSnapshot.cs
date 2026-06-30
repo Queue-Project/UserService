@@ -203,6 +203,32 @@ namespace QUserService.Infrastructure.Migrations
                     b.ToTable("Employees", (string)null);
                 });
 
+            modelBuilder.Entity("QUserService.Domain.Models.FavoriteEmployeesEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Favorite Employees", (string)null);
+                });
+
             modelBuilder.Entity("QUserService.Domain.Models.RefreshTokenEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -326,6 +352,25 @@ namespace QUserService.Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("QUserService.Domain.Models.FavoriteEmployeesEntity", b =>
+                {
+                    b.HasOne("QUserService.Domain.Models.CustomerEntity", "Customer")
+                        .WithMany("FavoriteEmployee")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QUserService.Domain.Models.EmployeeEntity", "Employee")
+                        .WithMany("FavoriteEmployees")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("QUserService.Domain.Models.RefreshTokenEntity", b =>
                 {
                     b.HasOne("QUserService.Domain.Models.UserEntity", "UserEntity")
@@ -352,9 +397,16 @@ namespace QUserService.Infrastructure.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("QUserService.Domain.Models.CustomerEntity", b =>
+                {
+                    b.Navigation("FavoriteEmployee");
+                });
+
             modelBuilder.Entity("QUserService.Domain.Models.EmployeeEntity", b =>
                 {
                     b.Navigation("AvailabilitySchedules");
+
+                    b.Navigation("FavoriteEmployees");
                 });
 
             modelBuilder.Entity("QUserService.Domain.Models.UserEntity", b =>
