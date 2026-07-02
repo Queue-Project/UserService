@@ -12,6 +12,7 @@ public interface IUserServiceApplicationDbContext
     DbSet<CustomerEntity> Customer { get; set; }
     DbSet<BlockedCustomerEntity> BlockedCustomers { get; set; }
     DbSet<AvailabilityScheduleEntity> AvailabilitySchedules { get; set; }
+    DbSet<FavoriteEmployeesEntity> FavoriteEmployeeEntities { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     

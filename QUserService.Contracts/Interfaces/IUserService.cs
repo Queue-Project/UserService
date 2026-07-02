@@ -17,9 +17,6 @@ public interface IUserService: IService<IUserService>
     UnaryResult<List<EmployeeInfo>> GetAllEmployees();
     UnaryResult<List<CustomerInfo>> GetAllCustomers();
     
-    
-    
-    
     UnaryResult<CustomerResponse> GetCustomerById(CustomerByIdRequest request);
     UnaryResult<CustomerResponse> GetCustomerByUserId(GetCustomerByUserIdRequest request);
     UnaryResult<CustomerValidationResponse> ValidateCustomerNotBlocked(CustomerBlockValidationRequest request);

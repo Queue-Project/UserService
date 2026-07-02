@@ -4,10 +4,10 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.CustomerEvent;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Enums;
 using QUserService.Domain.Models;
 
@@ -57,7 +57,7 @@ public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCo
             CustomerId = customer.Id,
             FirstName = customer.FirstName,
             LastName = customer.LastName,
-            PhoneNumber = customer.PhoneNumber
+            PhoneNumber = customer.PhoneNumber,
         }, cancellationToken);
 
 

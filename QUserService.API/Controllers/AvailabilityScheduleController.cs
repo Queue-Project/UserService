@@ -27,7 +27,7 @@ public class AvailabilityScheduleController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AvailabilityScheduleResponseModel>>> GetAllAsync([FromQuery]int pageNumber=1)
+    public async Task<ActionResult<PagedResponse<AvailabilityScheduleResponseModel>>> GetAllAsync([FromQuery]int pageNumber=1)
     {
         _logger.LogInformation("Received request to get all schedules. PageNumber: {PageNumber}, PageSize: 15",
             pageNumber);

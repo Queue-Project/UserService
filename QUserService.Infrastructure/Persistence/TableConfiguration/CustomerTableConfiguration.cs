@@ -28,5 +28,7 @@ public class CustomerTableConfiguration : IEntityTypeConfiguration<CustomerEntit
 
         builder.HasIndex(s => s.PhoneNumber)
             .IsUnique();
+
+    
     }
 }

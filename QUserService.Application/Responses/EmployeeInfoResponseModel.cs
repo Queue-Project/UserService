@@ -10,7 +10,5 @@ public class EmployeeInfoResponseModel
     public string LastName { get; set; }
     public string Position { get; set; }
     public string PhoneNumber { get; set; }
-    // public int TotalReviews { get; set; }
-    public double AverageRating { get; set; }
-    // public int TotalComplaints { get; set; }
+   
 }

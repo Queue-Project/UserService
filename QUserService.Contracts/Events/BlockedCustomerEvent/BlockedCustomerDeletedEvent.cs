@@ -1,4 +1,4 @@
-namespace QAuthService.Contracts.Events.BlockedCustomerEvent;
+namespace QUserService.Contracts.Events.BlockedCustomerEvent;
 
 public class BlockedCustomerDeletedEvent
 {

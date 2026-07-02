@@ -3,21 +3,21 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.EmployeeEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Employees.Commands.UpdateEmployee;
 
 public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeCommand, EmployeeResponseModel>
 {
-    private readonly ILogger<UpdateEmployeeCommand> _logger;
+    private readonly ILogger<UpdateEmployeeCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public UpdateEmployeeCommandHandler(ILogger<UpdateEmployeeCommand> logger, IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
+    public UpdateEmployeeCommandHandler(ILogger<UpdateEmployeeCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;

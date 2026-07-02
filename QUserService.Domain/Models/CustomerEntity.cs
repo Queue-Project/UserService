@@ -16,6 +16,9 @@ public class CustomerEntity: BaseEntity
     public string? PostalCode { get; set; }
     
     public DateTimeOffset? UpdatedAt { get; set; }
+
+
+    public List<FavoriteEmployeesEntity> FavoriteEmployee { get; set; }
     
 
 }
