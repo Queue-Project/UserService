@@ -1,8 +1,8 @@
 using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.CustomerEvent;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts.Events.CustomerEvent;
 
 namespace QUserService.Application.UseCases.Auth.Commands.DeleteCustomerAccount;
 

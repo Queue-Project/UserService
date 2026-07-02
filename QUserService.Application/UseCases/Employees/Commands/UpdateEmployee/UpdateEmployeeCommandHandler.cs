@@ -3,10 +3,10 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.EmployeeEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Employees.Commands.UpdateEmployee;

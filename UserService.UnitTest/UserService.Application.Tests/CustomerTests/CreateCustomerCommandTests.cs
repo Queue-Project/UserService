@@ -1,8 +1,8 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
-using QAuthService.Contracts.Events.CustomerEvent;
 using QUserService.Application.UseCases.Customers.Commands.CreateCustomer;
+using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Infrastructure.Persistence.Database;
 using Shouldly;
 using UserService.UnitTest.UserService.Application.Tests.Infrastructure;

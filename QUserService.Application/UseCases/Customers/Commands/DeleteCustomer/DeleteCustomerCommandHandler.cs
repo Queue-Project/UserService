@@ -3,9 +3,9 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.CustomerEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Customers.Commands.DeleteCustomer;

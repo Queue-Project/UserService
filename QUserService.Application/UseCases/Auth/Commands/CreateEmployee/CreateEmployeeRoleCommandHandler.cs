@@ -6,10 +6,10 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.EmployeeEvent;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Enums;
 using QUserService.Domain.Models;
 
