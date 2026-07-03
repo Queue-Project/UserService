@@ -120,4 +120,35 @@ public class UpdateEmployeeCommandHandlerTests
                 It.IsAny<CancellationToken>()), Times.Once);
         
     }
+    
+    [Fact]
+    public async Task Handler_Should_Throw_Exception_When_Phone_Number_Already_Exists()
+    {
+        // Arrange
+
+        var existingUser = TestDataSeeder.CreateEmployee();
+        existingUser.PhoneNumber = "+992923324252";
+        await _dbContext.Employees.AddAsync(existingUser, CancellationToken.None);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+        var command = new UpdateEmployeeCommand(
+            1,
+            "Update Firstname",
+            "Update Lastname",
+            "Barber",
+            "+992923324252");
+
+        // Act 
+        
+        var result = _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        
+        var exception = await result.ShouldThrowAsync<HttpStatusCodeException>();
+        
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        exception.Message.ShouldContain("Phone number already exists");
+
+      
+    }
 }

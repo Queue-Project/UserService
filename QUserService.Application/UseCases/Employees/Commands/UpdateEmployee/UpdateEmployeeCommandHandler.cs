@@ -17,7 +17,8 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public UpdateEmployeeCommandHandler(ILogger<UpdateEmployeeCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
+    public UpdateEmployeeCommandHandler(ILogger<UpdateEmployeeCommandHandler> logger,
+        IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -28,13 +29,20 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
     {
         _logger.LogInformation("Updating employee with Id {employeeId}", request.Id);
 
+        if (await _dbContext.Employees.FirstOrDefaultAsync(s => s.PhoneNumber == request.PhoneNumber,
+                cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
+
         var dbEmployee = await _dbContext.Employees.FirstOrDefaultAsync(s => s.Id == request.Id, cancellationToken);
         if (dbEmployee == null)
         {
             _logger.LogWarning("Employee with Id {employeeId} not found for updating", request.Id);
             throw new HttpStatusCodeException(HttpStatusCode.NotFound, nameof(EmployeeEntity));
         }
-        
+
         dbEmployee.FirstName = request.Firstname;
         dbEmployee.LastName = request.Lastname;
         dbEmployee.Position = request.Position;
@@ -55,13 +63,13 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
             Position = dbEmployee.Position,
             PhoneNumber = dbEmployee.PhoneNumber
         }, cancellationToken);
-        
+
         var response = new EmployeeResponseModel()
         {
             Id = dbEmployee.Id,
             CompanyId = dbEmployee.CompanyId,
             BranchId = dbEmployee.BranchId,
-            ServiceId = dbEmployee.ServiceId?? 0,
+            ServiceId = dbEmployee.ServiceId ?? 0,
             FirstName = dbEmployee.FirstName,
             LastName = dbEmployee.LastName,
             Position = dbEmployee.Position,

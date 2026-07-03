@@ -39,6 +39,12 @@ public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCo
             _logger.LogWarning("Customer with {email} email address already exists", request.EmailAddress);
             throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Email address already exists");
         }
+        
+        if (await _dbContext.Customer.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
 
         var customer = new CustomerEntity()
         {

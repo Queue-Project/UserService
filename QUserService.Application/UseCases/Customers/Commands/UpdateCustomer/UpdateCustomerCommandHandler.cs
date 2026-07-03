@@ -27,6 +27,12 @@ public class UpdateCustomerCommandHandler: IRequestHandler<UpdateCustomerCommand
     public async Task<CustomerResponseModel> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Updating customer with Id {id}.", request.Id);
+        
+        if (await _dbContext.Customer.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
         var dbCustomer = await _dbContext.Customer.FirstOrDefaultAsync(s => s.Id == request.Id, cancellationToken);    
         if (dbCustomer == null)
         {

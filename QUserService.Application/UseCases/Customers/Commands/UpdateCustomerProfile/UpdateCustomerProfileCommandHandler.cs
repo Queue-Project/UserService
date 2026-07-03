@@ -31,7 +31,11 @@ public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustome
     {
         _logger.LogInformation("Updating customer profile");
 
-
+        if (await _dbContext.Customer.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
         var currentCustomer = await _currentUserService.GetCurrentCustomerAsync(_dbContext, cancellationToken);
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(s => s.CustomerId == currentCustomer.Id,

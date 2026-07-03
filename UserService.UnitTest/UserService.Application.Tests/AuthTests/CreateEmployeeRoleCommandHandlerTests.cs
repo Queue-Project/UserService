@@ -213,6 +213,44 @@ public class CreateEmployeeRoleCommandHandlerTests
         exception.Message.ShouldContain("Email already exists");
     }
 
+     
+    [Fact]
+    public async Task Handler_Should_Throw_Exception_When_Phone_Number_Already_Exists()
+    {
+        // Arrange
+        var companyAdmin = TestDataSeeder.CreateUserCompanyAdmin();
+
+        await _dbContext.Users.AddAsync(companyAdmin, CancellationToken.None);
+
+        var existingUser = TestDataSeeder.CreateEmployee();
+        existingUser.PhoneNumber = "+992923324252";
+        await _dbContext.Employees.AddAsync(existingUser, CancellationToken.None);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+        var command = new CreateEmployeeRoleCommand(
+            1,
+            1,
+            "employee@test.com",
+            "EmployeeTest.1234",
+            "Test Firstname",
+            "Test Lastname",
+            "Barber",
+            "+992923324252",
+            companyAdmin.Id);
+
+        // Act 
+        
+        var result = _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        
+        var exception = await result.ShouldThrowAsync<HttpStatusCodeException>();
+        
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        exception.Message.ShouldContain("Phone number already exists");
+
+      
+    }
 
     [Fact]
     public async Task Handler_Should_Throw_Exception_When_Company_Not_Found()
