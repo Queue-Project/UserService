@@ -30,9 +30,11 @@ public class DeleteCustomerCommandTests
     public async Task Handler_Should_Delete_Customer()
     {
         //Arrange
-        var company = TestDataSeeder.CreateCustomer();
+        var userCustomer = TestDataSeeder.CreateUserCustomer();
+        var customer = TestDataSeeder.CreateCustomer();
 
-        await _dbContext.Customer.AddAsync(company, CancellationToken.None);
+        await _dbContext.Users.AddAsync(userCustomer, CancellationToken.None);
+        await _dbContext.Customer.AddAsync(customer, CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteCustomerCommand(1);
@@ -65,9 +67,11 @@ public class DeleteCustomerCommandTests
     public async Task Handler_Should_Publish_Event()
     {
         //Arrange
-        var company = TestDataSeeder.CreateCustomer();
+        var userCustomer = TestDataSeeder.CreateUserCustomer();
+        var customer = TestDataSeeder.CreateCustomer();
 
-        await _dbContext.Customer.AddAsync(company, CancellationToken.None);
+        await _dbContext.Users.AddAsync(userCustomer, CancellationToken.None);
+        await _dbContext.Customer.AddAsync(customer, CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteCustomerCommand(1);

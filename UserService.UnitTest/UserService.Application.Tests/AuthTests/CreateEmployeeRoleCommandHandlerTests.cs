@@ -60,7 +60,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Barber",
-            "+992923324252",
+            "+992921124252",
             userCompanyAdmin.Id);
 
         var companyExpectedResponse = new CompanyResponse()
@@ -270,7 +270,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Barber",
-            "+992923324252",
+            "+992923984252",
             userCompanyAdmin.Id);
 
         var companyExpectedResponse = new CompanyResponse()
@@ -321,7 +321,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Barber",
-            "+992923324252",
+            "+992920924252",
             userCompanyAdmin.Id);
 
         var companyExpectedResponse = new CompanyResponse()
@@ -387,7 +387,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Barber",
-            "+992923324252",
+            "+992923024252",
             userCompanyAdmin.Id);
 
         var companyExpectedResponse = new CompanyResponse()
@@ -465,7 +465,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Barber",
-            "+992923324252",
+            "+992923004252",
             userCompanyAdmin.Id);
         
         _mockCurrentService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
@@ -505,7 +505,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Barber",
-            "+992923324252",
+            "+992924324252",
             userCompanyAdmin.Id);
 
         var companyExpectedResponse = new CompanyResponse()

@@ -54,7 +54,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992977724252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse
@@ -119,7 +119,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992956324252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse
@@ -165,7 +165,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992968324252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse
@@ -252,7 +252,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992977324252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse

@@ -30,9 +30,10 @@ public class DeleteEmployeeCommandHandlerTests
     public async Task Handler_Should_Delete_Employee()
     {
         //Arrange
-        var company = TestDataSeeder.CreateEmployee();
-
-        await _dbContext.Employees.AddAsync(company, CancellationToken.None);
+        var userEmployee = TestDataSeeder.CreateUserEmployeeRole();
+        var employee = TestDataSeeder.CreateEmployee();
+        await _dbContext.Users.AddAsync(userEmployee, CancellationToken.None);
+        await _dbContext.Employees.AddAsync(employee, CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(1);
@@ -66,9 +67,10 @@ public class DeleteEmployeeCommandHandlerTests
     public async Task Handler_Should_Publish_Event()
     {
         //Arrange
-        var company = TestDataSeeder.CreateEmployee();
-
-        await _dbContext.Employees.AddAsync(company, CancellationToken.None);
+        var userEmployee = TestDataSeeder.CreateUserEmployeeRole();
+        var employee = TestDataSeeder.CreateEmployee();
+        await _dbContext.Users.AddAsync(userEmployee, CancellationToken.None);
+        await _dbContext.Employees.AddAsync(employee, CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(1);
