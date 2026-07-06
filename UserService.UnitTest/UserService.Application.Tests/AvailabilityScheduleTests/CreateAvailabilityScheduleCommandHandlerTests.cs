@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using QUserService.Application.Interfaces;
@@ -16,14 +17,16 @@ public class CreateAvailabilityScheduleCommandHandlerTests
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
     private readonly UserServiceDbContext _dbContext;
     private readonly CreateAvailabilityScheduleCommandHandler _handler;
+    private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
 
     public CreateAvailabilityScheduleCommandHandlerTests()
     {
+        _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<CreateAvailabilityScheduleCommandHandler>>();
         _mockCurrentUserService = new Mock<ICurrentUserService>();
         _dbContext = TestDbContextFactory.Create();
         _handler = new CreateAvailabilityScheduleCommandHandler(_mockLogger.Object, _dbContext,
-            _mockCurrentUserService.Object);
+            _mockCurrentUserService.Object, _mockPublishEndpoint.Object);
     }
 
     [Fact]

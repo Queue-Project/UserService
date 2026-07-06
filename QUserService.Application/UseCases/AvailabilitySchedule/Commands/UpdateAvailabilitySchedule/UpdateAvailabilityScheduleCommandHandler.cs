@@ -1,8 +1,11 @@
 using System.Net;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 using QUserService.Domain.Enums;
@@ -15,12 +18,14 @@ public class UpdateAvailabilityScheduleCommandHandler: IRequestHandler<UpdateAva
     private readonly ILogger<UpdateAvailabilityScheduleCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly ICurrentUserService _contextAccessor;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public UpdateAvailabilityScheduleCommandHandler(ILogger<UpdateAvailabilityScheduleCommandHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
+    public UpdateAvailabilityScheduleCommandHandler(ILogger<UpdateAvailabilityScheduleCommandHandler> logger, IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
         _contextAccessor = contextAccessor;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<AvailabilityScheduleResponseModel> Handle(UpdateAvailabilityScheduleCommand request, CancellationToken cancellationToken)
@@ -265,6 +270,9 @@ public class UpdateAvailabilityScheduleCommandHandler: IRequestHandler<UpdateAva
        
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        var entry = _dbContext.Entry(dbAvailabilitySchedule);
+        var changes = AuditHelper.GetChanges(entry);
+        
         var response = new AvailabilityScheduleResponseModel()
         {
             Id = dbAvailabilitySchedule.Id,
@@ -276,6 +284,18 @@ public class UpdateAvailabilityScheduleCommandHandler: IRequestHandler<UpdateAva
             RepeatDuration = dbAvailabilitySchedule.RepeatDuration,
             DayOfWeek = dbAvailabilitySchedule.AvailableSlots.First().From.DayOfWeek
         };
+        
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = currentEmployee.Id,
+            UserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}",
+            EntityId = dbAvailabilitySchedule.Id,
+            EntityName = nameof(AvailabilityScheduleEntity),
+            ServiceName = "UserService",
+            Action = "update.schedule",
+            AuditLogDetails = changes
+        }, cancellationToken);
 
         _logger.LogInformation("Successfully updated schedule with Id {id}", request.Id);
         return response;
