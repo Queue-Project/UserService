@@ -2,8 +2,11 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QNotificationService.Contracts.NotificationEvents;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
+using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Auth.Commands.ForgotPassword;
 
@@ -37,6 +40,22 @@ public class ForgotPasswordCommandHandler: IRequestHandler<ForgotPasswordCommand
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        var entry = _dbContext.Entry(user);
+        var changes = AuditHelper.GetChanges(entry);
+        
+        
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = user.Id,
+            UserName = "",
+            EntityId = user.Id,
+            EntityName = nameof(UserEntity),
+            ServiceName = "UserService",
+            Action = "forgot.password",
+            AuditLogDetails = changes
+        }, cancellationToken);
+        
         await _publishEndpoint.Publish(new SendNotificationEvent
         {
             Email = user.EmailAddress,

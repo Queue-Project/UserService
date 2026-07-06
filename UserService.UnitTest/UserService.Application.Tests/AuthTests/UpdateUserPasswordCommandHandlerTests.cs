@@ -1,4 +1,5 @@
 using System.Net;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -19,15 +20,17 @@ public class UpdateUserPasswordCommandHandlerTests
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
     private readonly Mock<IPasswordHasher<UserEntity>> _mockPasswordHasher;
     private readonly UpdateUserPasswordCommandHandler _handler;
+    private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
 
     public UpdateUserPasswordCommandHandlerTests()
     {
+        _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<UpdateUserPasswordCommandHandler>>();
         _dbContext = TestDbContextFactory.Create();
         _mockCurrentUserService = new Mock<ICurrentUserService>();
         _mockPasswordHasher = new Mock<IPasswordHasher<UserEntity>>();
         _handler = new UpdateUserPasswordCommandHandler(_mockLogger.Object, _dbContext, _mockCurrentUserService.Object,
-            _mockPasswordHasher.Object);
+            _mockPasswordHasher.Object, _mockPublishEndpoint.Object);
     }
 
     [Fact]

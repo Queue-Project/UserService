@@ -1,9 +1,12 @@
 using System.Net;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Models;
 
@@ -14,13 +17,15 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
     private readonly ILogger<ResetPasswordCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IPasswordHasher<UserEntity> _hasher;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public ResetPasswordCommandHandler(ILogger<ResetPasswordCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, IPasswordHasher<UserEntity> hasher)
+        IUserServiceApplicationDbContext dbContext, IPasswordHasher<UserEntity> hasher, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
         _hasher = hasher;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<bool> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
@@ -107,6 +112,21 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var entry = _dbContext.Entry(user);
+        var changes = AuditHelper.GetChanges(entry);
+        
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = user.Id,
+            UserName = "",
+            EntityId = user.Id,
+            EntityName = nameof(UserEntity),
+            ServiceName = "UserService",
+            Action = "reset.password",
+            AuditLogDetails = changes
+        }, cancellationToken);
 
         _logger.LogInformation(
             "Password reset successfully for user {Email}",

@@ -1,8 +1,11 @@
 using System.Net;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Models;
 
@@ -14,15 +17,17 @@ public class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPasswo
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly ICurrentUserService _contextAccessor;
     private readonly IPasswordHasher<UserEntity> _passwordHasher;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public UpdateUserPasswordCommandHandler(ILogger<UpdateUserPasswordCommandHandler> logger,
         IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor,
-        IPasswordHasher<UserEntity> passwordHasher)
+        IPasswordHasher<UserEntity> passwordHasher, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
         _contextAccessor = contextAccessor;
         _passwordHasher = passwordHasher;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<bool> Handle(UpdateUserPasswordCommand request, CancellationToken cancellationToken)
@@ -40,6 +45,21 @@ public class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPasswo
 
         currentUser.PasswordHash = _passwordHasher.HashPassword(currentUser, request.NewPassword);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var entry = _dbContext.Entry(currentUser);
+        var changes = AuditHelper.GetChanges(entry);
+        
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = currentUser.Id,
+            UserName = "",
+            EntityId = currentUser.Id,
+            EntityName = nameof(UserEntity),
+            ServiceName = "UserService",
+            Action = "update.password",
+            AuditLogDetails = changes
+        }, cancellationToken);
         return true;
     }
 }

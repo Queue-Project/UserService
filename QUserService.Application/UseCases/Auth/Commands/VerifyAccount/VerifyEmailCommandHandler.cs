@@ -1,9 +1,12 @@
 using System.Net;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Auth.Commands.VerifyAccount;
 
@@ -11,11 +14,13 @@ public class VerifyEmailCommandHandler: IRequestHandler<VerifyEmailCommand, bool
 {
     private readonly ILogger<VerifyEmailCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public VerifyEmailCommandHandler(ILogger<VerifyEmailCommandHandler> logger, IUserServiceApplicationDbContext dbContext)
+    public VerifyEmailCommandHandler(ILogger<VerifyEmailCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<bool> Handle(VerifyEmailCommand request, CancellationToken cancellationToken)
@@ -47,6 +52,17 @@ public class VerifyEmailCommandHandler: IRequestHandler<VerifyEmailCommand, bool
         user.VerifiedAt = DateTime.UtcNow;
         
         await _dbContext.SaveChangesAsync(cancellationToken);
+        
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = user.Id,
+            UserName = "",
+            EntityId = user.Id,
+            EntityName = nameof(UserEntity),
+            ServiceName = "UserService",
+            Action = "verify.email"
+        }, cancellationToken);
 
         return true;
     }
