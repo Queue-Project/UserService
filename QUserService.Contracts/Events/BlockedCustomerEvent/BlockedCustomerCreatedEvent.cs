@@ -3,6 +3,7 @@ namespace QUserService.Contracts.Events.BlockedCustomerEvent;
 public class BlockedCustomerCreatedEvent
 {
     public DateTimeOffset OccuredAt { get; set; }
+    public AuditData? AuditData { get; set; }
     public int CompanyId { get; set; }
     public int CustomerId { get; set; }
     public int BlockedCustomerId { get; set; }
