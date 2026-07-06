@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Models;
 
@@ -102,7 +103,12 @@ public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeComman
             FirstName = employee.FirstName,
             LastName = employee.LastName,
             Position = employee.Position,
-            PhoneNumber = employee.PhoneNumber
+            PhoneNumber = employee.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = currentEmployee.Id,
+                PerformedByUserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}"
+            }
         }, cancellationToken);
 
         var response = new EmployeeResponseModel()

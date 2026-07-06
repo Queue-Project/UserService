@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Enums;
 using QUserService.Domain.Models;
 
@@ -92,6 +94,23 @@ public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdmi
             Position = request.Position
         };
 
+        await _publishEndpoint.Publish(new EmployeeCreatedEvent
+        {
+            OccurredAt = DateTimeOffset.UtcNow,
+            CompanyId = employee.CompanyId,
+            BranchId = employee.BranchId,
+            EmployeeId = employee.Id,
+            ServiceId = employee.ServiceId,
+            FirstName = employee.FirstName,
+            LastName = employee.LastName,
+            Position = employee.Position,
+            PhoneNumber = employee.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = creator.Id,
+                PerformedByUserName = "systemAdmin"
+            }
+        }, cancellationToken);
         await _dbContext.Employees.AddAsync(employee, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         

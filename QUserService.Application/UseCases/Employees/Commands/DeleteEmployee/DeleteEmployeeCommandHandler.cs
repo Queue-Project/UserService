@@ -5,34 +5,39 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Employees.Commands.DeleteEmployee;
 
-public class DeleteEmployeeCommandHandler: IRequestHandler<DeleteEmployeeCommand, bool>
+public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeCommand, bool>
 {
     private readonly ILogger<DeleteEmployeeCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly ICurrentUserService _currentUserService;
 
-    public DeleteEmployeeCommandHandler(ILogger<DeleteEmployeeCommandHandler> logger, IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
+    public DeleteEmployeeCommandHandler(ILogger<DeleteEmployeeCommandHandler> logger,
+        IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint,
+        ICurrentUserService currentUserService)
     {
         _logger = logger;
         _dbContext = dbContext;
         _publishEndpoint = publishEndpoint;
+        _currentUserService = currentUserService;
     }
 
     public async Task<bool> Handle(DeleteEmployeeCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Deleting employee with Id {id}", request.Id);
 
-
+        var currentEmployee = await _currentUserService.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
         var dbUser =
             await _dbContext.Users.FirstOrDefaultAsync(s => s.EmployeeId!.Value == request.Id, cancellationToken);
-        
+
         var dbEmployee = await _dbContext.Employees.FirstOrDefaultAsync(s => s.Id == request.Id, cancellationToken);
-        if (dbEmployee== null || dbUser== null)
+        if (dbEmployee == null || dbUser == null)
         {
             _logger.LogWarning("Employee with Id {id} not found for deleting", request.Id);
             throw new HttpStatusCodeException(HttpStatusCode.NotFound, nameof(EmployeeEntity));
@@ -53,9 +58,14 @@ public class DeleteEmployeeCommandHandler: IRequestHandler<DeleteEmployeeCommand
             FirstName = dbEmployee.FirstName,
             LastName = dbEmployee.LastName,
             Position = dbEmployee.Position,
-            PhoneNumber = dbEmployee.PhoneNumber
+            PhoneNumber = dbEmployee.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = currentEmployee.Id,
+                PerformedByUserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}"
+            }
         }, cancellationToken);
-        
+
         return true;
     }
 }
