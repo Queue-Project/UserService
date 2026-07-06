@@ -4,8 +4,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Models;
 
@@ -49,13 +51,21 @@ public class UpdateCustomerCommandHandler: IRequestHandler<UpdateCustomerCommand
 
         _logger.LogInformation("Customer with Id {id} updated successfully.", request.Id);
 
+        var entry = _dbContext.Entry(dbCustomer);
+        var changes = AuditHelper.GetChanges(entry);
         await _publishEndpoint.Publish(new CustomerUpdatedEvent
         {
             OccuredAt = DateTimeOffset.UtcNow,
             CustomerId = dbCustomer.Id,
             FirstName = dbCustomer.FirstName,
             LastName = dbCustomer.LastName,
-            PhoneNumber = dbCustomer.PhoneNumber
+            PhoneNumber = dbCustomer.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = dbCustomer.Id,
+                PerformedByUserName = $"{dbCustomer.FirstName} {dbCustomer.LastName}",
+                Changes = changes
+            }
         }, cancellationToken);
         
         var response = new CustomerResponseModel()

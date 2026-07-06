@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.BlockedCustomerEvent;
 using QUserService.Domain.Models;
 
@@ -55,7 +56,12 @@ public class DeleteBlockedCustomerCommandHandler: IRequestHandler<DeleteBlockedC
             BlockedCustomerId = dbBlockedCustomer.Id,
             Reason = dbBlockedCustomer.Reason,
             BannedUntil = dbBlockedCustomer.BannedUntil,
-            DoesBanForever = dbBlockedCustomer.DoesBanForever
+            DoesBanForever = dbBlockedCustomer.DoesBanForever,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = currentEmployee.Id,
+                PerformedByUserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}"
+            }
         }, cancellationToken);
 
         return true;

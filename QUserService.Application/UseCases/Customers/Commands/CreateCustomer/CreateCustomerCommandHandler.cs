@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Models;
 
@@ -53,7 +54,12 @@ public class CreateCustomerCommandHandler: IRequestHandler<CreateCustomerCommand
             CustomerId = customer.Id,
             FirstName = customer.FirstName,
             LastName = customer.LastName,
-            PhoneNumber = customer.PhoneNumber
+            PhoneNumber = customer.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = customer.Id,
+                PerformedByUserName = $"{request.Firstname} {request.Lastname}"
+            }
         }, cancellationToken);
         
         var response = new CustomerResponseModel()

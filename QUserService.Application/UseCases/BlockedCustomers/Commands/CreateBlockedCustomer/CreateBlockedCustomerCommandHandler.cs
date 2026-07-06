@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.BlockedCustomerEvent;
 using QUserService.Domain.Models;
 
@@ -100,7 +101,12 @@ public class CreateBlockedCustomerCommandHandler: IRequestHandler<CreateBlockedC
             BlockedCustomerId = blockedCustomer.Id,
             Reason = blockedCustomer.Reason,
             BannedUntil = blockedCustomer.BannedUntil,
-            DoesBanForever = blockedCustomer.DoesBanForever
+            DoesBanForever = blockedCustomer.DoesBanForever,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = currentEmployee.Id,
+                PerformedByUserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}"
+            }
         }, cancellationToken);
 
         var response = new BlockedCustomerResponseModel()
