@@ -62,18 +62,18 @@ public class ResendVerificationCommandHandler: IRequestHandler<ResendVerificatio
         user.EmailVerificationCodeExpires = DateTime.UtcNow.AddMinutes(10);
         user.LastCodeSentAt = DateTime.UtcNow;
         user.ResendCount++;
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
         var entry = _dbContext.Entry(user);
         var changes = AuditHelper.GetChanges(entry);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        
         
         
         await _publishEndpoint.Publish(new AuditEvent
         {
             OccuredAt = DateTime.UtcNow,
             UserId = user.Id,
-            UserName = "",
+            UserName = user.EmailAddress,
             EntityId = user.Id,
             EntityName = nameof(UserEntity),
             ServiceName = "UserService",

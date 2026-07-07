@@ -57,11 +57,12 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
         dbEmployee.PhoneNumber = request.PhoneNumber;
 
 
+        var entry = _dbContext.Entry(dbEmployee);
+        var changes = AuditHelper.GetChanges(entry);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Employee with Id {dbEmployee.Id} updated successfully.", dbEmployee.Id);
 
-        var entry = _dbContext.Entry(dbEmployee);
-        var changes = AuditHelper.GetChanges(entry);
+       
         await _publishEndpoint.Publish(new EmployeeUpdatedEvent
         {
             OccurredAt = DateTimeOffset.UtcNow,

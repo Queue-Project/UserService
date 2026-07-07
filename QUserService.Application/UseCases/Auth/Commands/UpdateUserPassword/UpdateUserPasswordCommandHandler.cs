@@ -43,23 +43,26 @@ public class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUserPasswo
             throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Current Password is incorrect");
         }
 
-        currentUser.PasswordHash = _passwordHasher.HashPassword(currentUser, request.NewPassword);
-        await _dbContext.SaveChangesAsync(cancellationToken);
 
+        currentUser.PasswordHash = _passwordHasher.HashPassword(currentUser, request.NewPassword);
         var entry = _dbContext.Entry(currentUser);
         var changes = AuditHelper.GetChanges(entry);
-        
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+
         await _publishEndpoint.Publish(new AuditEvent
         {
             OccuredAt = DateTime.UtcNow,
             UserId = currentUser.Id,
-            UserName = "",
+            UserName = currentUser.EmailAddress,
             EntityId = currentUser.Id,
             EntityName = nameof(UserEntity),
             ServiceName = "UserService",
-            Action = "update.password",
+            Action = "updated.password",
             AuditLogDetails = changes
         }, cancellationToken);
+        _logger.LogInformation("Event published");
+
         return true;
     }
 }

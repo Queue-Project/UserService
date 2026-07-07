@@ -47,12 +47,13 @@ public class UpdateCustomerCommandHandler: IRequestHandler<UpdateCustomerCommand
         dbCustomer.LastName = request.Lastname;
         dbCustomer.PhoneNumber = request.PhoneNumber;
         
+        var entry = _dbContext.Entry(dbCustomer);
+        var changes = AuditHelper.GetChanges(entry);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Customer with Id {id} updated successfully.", request.Id);
 
-        var entry = _dbContext.Entry(dbCustomer);
-        var changes = AuditHelper.GetChanges(entry);
+       
         await _publishEndpoint.Publish(new CustomerUpdatedEvent
         {
             OccuredAt = DateTimeOffset.UtcNow,

@@ -267,11 +267,11 @@ public class UpdateAvailabilityScheduleCommandHandler: IRequestHandler<UpdateAva
         }
 
         _logger.LogDebug("Saving updated schedules to repository");
-       
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
         var entry = _dbContext.Entry(dbAvailabilitySchedule);
         var changes = AuditHelper.GetChanges(entry);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+       
         
         var response = new AvailabilityScheduleResponseModel()
         {

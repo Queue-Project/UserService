@@ -61,13 +61,14 @@ public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustome
         currentCustomer.UpdatedAt = DateTimeOffset.UtcNow;
 
 
+        var entry = _dbContext.Entry(currentCustomer);
+        var changes = AuditHelper.GetChanges(entry);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Customer Profile with Id {id} updated successfully.", currentCustomer.Id);
 
 
-        var entry = _dbContext.Entry(currentCustomer);
-        var changes = AuditHelper.GetChanges(entry);
+        
         await _publishEndpoint.Publish(new CustomerUpdatedEvent
         {
             OccuredAt = DateTimeOffset.UtcNow,

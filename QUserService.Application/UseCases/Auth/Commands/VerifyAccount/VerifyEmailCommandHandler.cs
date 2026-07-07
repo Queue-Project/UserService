@@ -57,7 +57,7 @@ public class VerifyEmailCommandHandler: IRequestHandler<VerifyEmailCommand, bool
         {
             OccuredAt = DateTime.UtcNow,
             UserId = user.Id,
-            UserName = "",
+            UserName = user.EmailAddress,
             EntityId = user.Id,
             EntityName = nameof(UserEntity),
             ServiceName = "UserService",
