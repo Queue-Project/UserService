@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Models;
 using QUserService.Infrastructure.Persistence.TableConfiguration;
@@ -27,4 +28,6 @@ public class UserServiceDbContext : DbContext, IUserServiceApplicationDbContext
     public DbSet<BlockedCustomerEntity> BlockedCustomers { get; set; }
     public DbSet<AvailabilityScheduleEntity> AvailabilitySchedules { get; set; }
     public DbSet<FavoriteEmployeesEntity> FavoriteEmployeeEntities { get; set; }
+    public new EntityEntry Entry(object entity)
+        => base.Entry(entity);
 }

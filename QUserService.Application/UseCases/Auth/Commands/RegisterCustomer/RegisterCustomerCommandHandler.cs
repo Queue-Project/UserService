@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Enums;
 using QUserService.Domain.Models;
@@ -64,6 +65,11 @@ public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCo
             FirstName = customer.FirstName,
             LastName = customer.LastName,
             PhoneNumber = customer.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = customer.Id,
+                PerformedByUserName = $"{request.FirstName} {request.LastName}"
+            }
         }, cancellationToken);
 
 

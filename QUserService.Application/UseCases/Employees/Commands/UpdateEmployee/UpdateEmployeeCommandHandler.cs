@@ -4,8 +4,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Models;
 
@@ -16,18 +18,23 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
     private readonly ILogger<UpdateEmployeeCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly ICurrentUserService _currentUserService;
 
     public UpdateEmployeeCommandHandler(ILogger<UpdateEmployeeCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
+        IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint,
+        ICurrentUserService currentUserService)
     {
         _logger = logger;
         _dbContext = dbContext;
         _publishEndpoint = publishEndpoint;
+        _currentUserService = currentUserService;
     }
 
     public async Task<EmployeeResponseModel> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Updating employee with Id {employeeId}", request.Id);
+
+        var currentEmployee = await _currentUserService.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
 
         if (await _dbContext.Employees.FirstOrDefaultAsync(s => s.PhoneNumber == request.PhoneNumber,
                 cancellationToken) != null)
@@ -43,14 +50,19 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
             throw new HttpStatusCodeException(HttpStatusCode.NotFound, nameof(EmployeeEntity));
         }
 
+
         dbEmployee.FirstName = request.Firstname;
         dbEmployee.LastName = request.Lastname;
         dbEmployee.Position = request.Position;
         dbEmployee.PhoneNumber = request.PhoneNumber;
 
+
+        var entry = _dbContext.Entry(dbEmployee);
+        var changes = AuditHelper.GetChanges(entry);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Employee with Id {dbEmployee.Id} updated successfully.", dbEmployee.Id);
 
+       
         await _publishEndpoint.Publish(new EmployeeUpdatedEvent
         {
             OccurredAt = DateTimeOffset.UtcNow,
@@ -61,7 +73,13 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
             FirstName = dbEmployee.FirstName,
             LastName = dbEmployee.LastName,
             Position = dbEmployee.Position,
-            PhoneNumber = dbEmployee.PhoneNumber
+            PhoneNumber = dbEmployee.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = currentEmployee.Id,
+                PerformedByUserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}",
+                Changes = changes
+            }
         }, cancellationToken);
 
         var response = new EmployeeResponseModel()

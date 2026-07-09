@@ -4,8 +4,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.CustomerEvent;
 
 namespace QUserService.Application.UseCases.Customers.Commands.UpdateCustomerProfile;
@@ -59,17 +61,27 @@ public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustome
         currentCustomer.UpdatedAt = DateTimeOffset.UtcNow;
 
 
+        var entry = _dbContext.Entry(currentCustomer);
+        var changes = AuditHelper.GetChanges(entry);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Customer Profile with Id {id} updated successfully.", currentCustomer.Id);
 
+
+        
         await _publishEndpoint.Publish(new CustomerUpdatedEvent
         {
             OccuredAt = DateTimeOffset.UtcNow,
             CustomerId = currentCustomer.Id,
             FirstName = currentCustomer.FirstName,
             LastName = currentCustomer.LastName,
-            PhoneNumber = currentCustomer.PhoneNumber
+            PhoneNumber = currentCustomer.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = currentCustomer.Id,
+                PerformedByUserName = $"{currentCustomer.FirstName} {currentCustomer.LastName}",
+                Changes = changes
+            }
         }, cancellationToken);
 
 

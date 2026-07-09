@@ -6,9 +6,11 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Enums;
 using QUserService.Domain.Models;
@@ -153,7 +155,12 @@ public class CreateEmployeeRoleCommandHandler : IRequestHandler<CreateEmployeeRo
             FirstName = employee.FirstName,
             LastName = employee.LastName,
             Position = employee.Position,
-            PhoneNumber = employee.PhoneNumber
+            PhoneNumber = employee.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = currentEmployee.Id,
+                PerformedByUserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}"
+            }
         }, cancellationToken);
 
         var user = new UserEntity
@@ -187,6 +194,7 @@ public class CreateEmployeeRoleCommandHandler : IRequestHandler<CreateEmployeeRo
                 ",
             UserId = user.Id
         }, cancellationToken);
+        
         
         _logger.LogInformation("Employee with {email} email address registered successfully", request.EmailAddress);
         return user;

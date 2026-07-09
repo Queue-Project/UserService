@@ -3,9 +3,12 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
+using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Auth.Commands.ResendCode;
 
@@ -59,9 +62,26 @@ public class ResendVerificationCommandHandler: IRequestHandler<ResendVerificatio
         user.EmailVerificationCodeExpires = DateTime.UtcNow.AddMinutes(10);
         user.LastCodeSentAt = DateTime.UtcNow;
         user.ResendCount++;
-
+        var entry = _dbContext.Entry(user);
+        var changes = AuditHelper.GetChanges(entry);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        
+        
+        
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = user.Id,
+            UserName = user.EmailAddress,
+            EntityId = user.Id,
+            EntityName = nameof(UserEntity),
+            ServiceName = "UserService",
+            Action = "resend.verification.code",
+            AuditLogDetails = changes
+        }, cancellationToken);
+        
+        
         await _publishEndpoint.Publish(new SendNotificationEvent
         {
             Email = user.EmailAddress,

@@ -3,8 +3,10 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Interfaces;
 using QUserService.Application.UseCases.Employees.Commands.DeleteEmployee;
 using QUserService.Contracts.Events.EmployeeEvent;
+using QUserService.Domain.Models;
 using QUserService.Infrastructure.Persistence.Database;
 using Shouldly;
 using UserService.UnitTest.UserService.Application.Tests.Infrastructure;
@@ -17,25 +19,34 @@ public class DeleteEmployeeCommandHandlerTests
     private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
     private readonly Mock<ILogger<DeleteEmployeeCommandHandler>> _mockLogger;
     private readonly DeleteEmployeeCommandHandler _handler;
+    private readonly Mock<ICurrentUserService> _mockCurrentUserService;
 
     public DeleteEmployeeCommandHandlerTests()
     {
+        _mockCurrentUserService = new Mock<ICurrentUserService>();
         _dbContext = TestDbContextFactory.Create();
         _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<DeleteEmployeeCommandHandler>>();
-        _handler = new DeleteEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object);
+        _handler = new DeleteEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object,
+            _mockCurrentUserService.Object);
     }
 
     [Fact]
     public async Task Handler_Should_Delete_Employee()
     {
         //Arrange
+
+        var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
+        
         var userEmployee = TestDataSeeder.CreateUserEmployeeRole();
         var employee = TestDataSeeder.CreateEmployee();
         await _dbContext.Users.AddAsync(userEmployee, CancellationToken.None);
-        await _dbContext.Employees.AddAsync(employee, CancellationToken.None);
+        await _dbContext.Employees.AddRangeAsync([employee, companyAdmin], CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
 
+        _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(companyAdmin);
+        
         var command = new DeleteEmployeeCommand(1);
 
 
@@ -67,11 +78,16 @@ public class DeleteEmployeeCommandHandlerTests
     public async Task Handler_Should_Publish_Event()
     {
         //Arrange
+        var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
+        
         var userEmployee = TestDataSeeder.CreateUserEmployeeRole();
         var employee = TestDataSeeder.CreateEmployee();
         await _dbContext.Users.AddAsync(userEmployee, CancellationToken.None);
-        await _dbContext.Employees.AddAsync(employee, CancellationToken.None);
+        await _dbContext.Employees.AddRangeAsync([employee, companyAdmin], CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+        _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(companyAdmin);
 
         var command = new DeleteEmployeeCommand(1);
 

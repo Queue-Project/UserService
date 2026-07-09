@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Models;
 
@@ -48,7 +49,12 @@ public class DeleteCustomerCommandHandler : IRequestHandler<DeleteCustomerComman
             CustomerId = dbCustomer.Id,
             FirstName = dbCustomer.FirstName,
             LastName = dbCustomer.LastName,
-            PhoneNumber = dbCustomer.PhoneNumber
+            PhoneNumber = dbCustomer.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = dbCustomer.Id,
+                PerformedByUserName = $"{dbCustomer.FirstName} {dbCustomer.LastName}"
+            }
         }, cancellationToken);
 
         return true;

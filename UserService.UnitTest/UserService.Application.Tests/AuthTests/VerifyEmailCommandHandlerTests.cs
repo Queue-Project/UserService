@@ -1,4 +1,5 @@
 using System.Net;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using QUserService.Application.Exceptions;
@@ -14,12 +15,15 @@ public class VerifyEmailCommandHandlerTests
     private readonly Mock<ILogger<VerifyEmailCommandHandler>> _mockLogger;
     private readonly UserServiceDbContext _dbContext;
     private readonly VerifyEmailCommandHandler _handler;
+    private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
+    
 
     public VerifyEmailCommandHandlerTests()
     {
+        _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<VerifyEmailCommandHandler>>();
         _dbContext = TestDbContextFactory.Create();
-        _handler = new VerifyEmailCommandHandler(_mockLogger.Object, _dbContext);
+        _handler = new VerifyEmailCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object);
     }
 
     [Fact]

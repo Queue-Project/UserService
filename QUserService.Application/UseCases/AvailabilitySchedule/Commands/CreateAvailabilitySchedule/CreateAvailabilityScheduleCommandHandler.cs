@@ -1,6 +1,8 @@
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
 using QUserService.Domain.Enums;
@@ -14,13 +16,15 @@ public class CreateAvailabilityScheduleCommandHandler : IRequestHandler<CreateAv
     private readonly ILogger<CreateAvailabilityScheduleCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly ICurrentUserService _contextAccessor;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public CreateAvailabilityScheduleCommandHandler(ILogger<CreateAvailabilityScheduleCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
+        IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
         _contextAccessor = contextAccessor;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<List<AvailabilityScheduleResponseModel>> Handle(CreateAvailabilityScheduleCommand request,
@@ -226,6 +230,19 @@ public class CreateAvailabilityScheduleCommandHandler : IRequestHandler<CreateAv
             AvailableSlots = slot.AvailableSlots,
             DayOfWeek = slot.AvailableSlots.First().From.DayOfWeek
         }).ToList();
+
+        var firstSchedule = responses.FirstOrDefault();
+
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = currentEmployee.Id,
+            UserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}",
+            EntityId = firstSchedule!.Id,
+            EntityName = nameof(AvailabilityScheduleEntity),
+            ServiceName = "UserService",
+            Action = "create.schedule"
+        }, cancellationToken);
 
         _logger.LogInformation("Successfully added schedules for EmployeeId: {id}", currentEmployee.Id);
         return responses;

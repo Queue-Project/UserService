@@ -3,6 +3,8 @@ namespace QUserService.Contracts.Events.EmployeeEvent;
 public class EmployeeDeletedEvent
 {
     public DateTimeOffset OccurredAt { get; set; }
+    public AuditData? AuditData { get; set; }
+    
     public int CompanyId { get; set; }
     public int? BranchId { get; set; }
     public int EmployeeId { get; set; }

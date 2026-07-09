@@ -1,4 +1,5 @@
 using System.Net;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using QUserService.Application.Exceptions;
@@ -16,14 +17,17 @@ public class DeleteAvailabilityScheduleCommandHandlerTests
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
     private readonly UserServiceDbContext _dbContext;
     private readonly DeleteAvailabilityScheduleCommandHandler _handler;
+    private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
+    
 
     public DeleteAvailabilityScheduleCommandHandlerTests()
     {
+        _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<DeleteAvailabilityScheduleCommandHandler>>();
         _mockCurrentUserService = new Mock<ICurrentUserService>();
         _dbContext = TestDbContextFactory.Create();
         _handler = new DeleteAvailabilityScheduleCommandHandler(_mockLogger.Object, _dbContext,
-            _mockCurrentUserService.Object);
+            _mockCurrentUserService.Object, _mockPublishEndpoint.Object);
     }
     
     [Fact]

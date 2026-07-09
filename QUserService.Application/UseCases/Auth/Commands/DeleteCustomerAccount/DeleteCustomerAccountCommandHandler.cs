@@ -2,6 +2,7 @@ using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts;
 using QUserService.Contracts.Events.CustomerEvent;
 
 namespace QUserService.Application.UseCases.Auth.Commands.DeleteCustomerAccount;
@@ -43,7 +44,12 @@ public class DeleteCustomerAccountCommandHandler: IRequestHandler<DeleteCustomer
             CustomerId = customer.Id,
             FirstName = customer.FirstName,
             LastName = customer.LastName,
-            PhoneNumber = customer.PhoneNumber
+            PhoneNumber = customer.PhoneNumber,
+            AuditData = new AuditData
+            {
+                PerformedByUserId = customer.Id,
+                PerformedByUserName = $"{customer.FirstName} {customer.LastName}"
+            }
         }, cancellationToken);
         
         return true;

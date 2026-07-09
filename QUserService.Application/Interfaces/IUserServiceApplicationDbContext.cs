@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.Interfaces;
@@ -14,6 +15,7 @@ public interface IUserServiceApplicationDbContext
     DbSet<AvailabilityScheduleEntity> AvailabilitySchedules { get; set; }
     DbSet<FavoriteEmployeesEntity> FavoriteEmployeeEntities { get; set; }
 
+    EntityEntry Entry(object entity);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     
 }

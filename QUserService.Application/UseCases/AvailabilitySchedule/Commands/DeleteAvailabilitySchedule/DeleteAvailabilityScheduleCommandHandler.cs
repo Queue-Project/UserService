@@ -1,7 +1,9 @@
 using System.Net;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QAuditLogService.Contracts.AuditEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Domain.Models;
@@ -13,13 +15,15 @@ public class DeleteAvailabilityScheduleCommandHandler : IRequestHandler<DeleteAv
     private readonly ILogger<DeleteAvailabilityScheduleCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly ICurrentUserService _contextAccessor;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public DeleteAvailabilityScheduleCommandHandler(ILogger<DeleteAvailabilityScheduleCommandHandler> logger,
-        IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor)
+        IUserServiceApplicationDbContext dbContext, ICurrentUserService contextAccessor, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _dbContext = dbContext;
         _contextAccessor = contextAccessor;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<bool> Handle(DeleteAvailabilityScheduleCommand request, CancellationToken cancellationToken)
@@ -74,6 +78,16 @@ public class DeleteAvailabilityScheduleCommandHandler : IRequestHandler<DeleteAv
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Deletion successfully completed for schedule Id {id}", request.Id);
 
+        await _publishEndpoint.Publish(new AuditEvent
+        {
+            OccuredAt = DateTime.UtcNow,
+            UserId = currentEmployee.Id,
+            UserName = $"{currentEmployee.FirstName} {currentEmployee.LastName}",
+            EntityId = request.Id,
+            EntityName = nameof(AvailabilityScheduleEntity),
+            ServiceName = "UserService",
+            Action = "delete.schedule"
+        }, cancellationToken);
         return true;
     }
 }

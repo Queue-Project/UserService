@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using QUserService.Application.Exceptions;
+using QUserService.Application.Interfaces;
 using QUserService.Application.UseCases.Employees.Commands.UpdateEmployee;
 using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Infrastructure.Persistence.Database;
@@ -18,13 +19,15 @@ public class UpdateEmployeeCommandHandlerTests
     private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
     private readonly Mock<ILogger<UpdateEmployeeCommandHandler>> _mockLogger;
     private readonly UpdateEmployeeCommandHandler _handler;
+    private readonly Mock<ICurrentUserService> _mockCurrentUserService;
 
     public UpdateEmployeeCommandHandlerTests()
     {
+        _mockCurrentUserService = new Mock<ICurrentUserService>();
         _dbContext = TestDbContextFactory.Create();
         _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<UpdateEmployeeCommandHandler>>();
-        _handler = new UpdateEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object);
+        _handler = new UpdateEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object, _mockCurrentUserService.Object);
     }
     
     [Fact]
@@ -32,12 +35,14 @@ public class UpdateEmployeeCommandHandlerTests
     {
         //Arrange
 
+        var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         var customer = TestDataSeeder.CreateEmployee();
 
-        await _dbContext.Employees.AddAsync(customer, CancellationToken.None);
+        await _dbContext.Employees.AddRangeAsync([customer, companyAdmin], CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
-        
-        
+
+        _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(companyAdmin);
         
         var command = new UpdateEmployeeCommand(
             1,
@@ -93,11 +98,14 @@ public class UpdateEmployeeCommandHandlerTests
     {
         //Arrange
 
+        var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         var customer = TestDataSeeder.CreateEmployee();
 
-        await _dbContext.Employees.AddAsync(customer, CancellationToken.None);
+        await _dbContext.Employees.AddRangeAsync([customer, companyAdmin], CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
-        
+
+        _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(companyAdmin);
         
         
         var command = new UpdateEmployeeCommand(
@@ -125,11 +133,17 @@ public class UpdateEmployeeCommandHandlerTests
     public async Task Handler_Should_Throw_Exception_When_Phone_Number_Already_Exists()
     {
         // Arrange
-
+        
+        
+        var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         var existingUser = TestDataSeeder.CreateEmployee();
         existingUser.PhoneNumber = "+992923324252";
-        await _dbContext.Employees.AddAsync(existingUser, CancellationToken.None);
+
+        await _dbContext.Employees.AddRangeAsync([existingUser, companyAdmin], CancellationToken.None);
         await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+        _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(companyAdmin);
 
         var command = new UpdateEmployeeCommand(
             1,

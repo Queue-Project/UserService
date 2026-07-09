@@ -53,13 +53,13 @@ public class TestDataSeeder
     {
         return new EmployeeEntity
         {
-            Id = 1,
+            Id = 5,
             CompanyId = 1,
             BranchId = null,
             ServiceId = null,
             FirstName = "Test Firstname",
             LastName = "Test Lastname",
-            PhoneNumber = "+992923324252",
+            PhoneNumber = "+9929233211252",
             Position = "CompanyAdmin",
             CreatedAt = DateTime.UtcNow
         };

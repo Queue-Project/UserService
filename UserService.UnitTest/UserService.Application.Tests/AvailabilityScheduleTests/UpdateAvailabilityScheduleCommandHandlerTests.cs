@@ -1,4 +1,5 @@
 using System.Net;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -19,15 +20,18 @@ public class UpdateAvailabilityScheduleCommandHandlerTests
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
     private readonly UserServiceDbContext _dbContext;
     private readonly UpdateAvailabilityScheduleCommandHandler _handler;
+    private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
+    
 
     public UpdateAvailabilityScheduleCommandHandlerTests()
     {
+        _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<UpdateAvailabilityScheduleCommandHandler>>();
         _mockCurrentUserService = new Mock<ICurrentUserService>();
         _dbContext = TestDbContextFactory.Create();
         _handler = new UpdateAvailabilityScheduleCommandHandler
         (_mockLogger.Object, _dbContext,
-            _mockCurrentUserService.Object);
+            _mockCurrentUserService.Object, _mockPublishEndpoint.Object);
     }
     
     [Fact]
