@@ -123,6 +123,83 @@ public class TestDataSeeder
             }
         };
     }
+    
+    
+    
+    public static FavoriteEmployeesEntity CreateFavoriteEmployee()
+    {
+        return new FavoriteEmployeesEntity()
+        {
+            Id = 1,
+            EmployeeId = 1,
+            CustomerId = 1,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+    
+    public static List<FavoriteEmployeesEntity> CreateFavoriteEmployees()
+    {
+        return new List<FavoriteEmployeesEntity>
+        {
+            new FavoriteEmployeesEntity()
+            {
+                Id = 1,
+                EmployeeId = 1,
+                Employee =  new EmployeeEntity
+                {
+                    Id = 1,
+                    CompanyId = 1,
+                    BranchId = 1,
+                    ServiceId = 1,
+                    FirstName = "Test Firstname1",
+                    LastName = "Test Lastname1",
+                    PhoneNumber = "+992923324241",
+                    Position = "Barber1",
+                    CreatedAt = DateTime.UtcNow
+                },
+                CustomerId = 1,
+                CreatedAt = DateTime.UtcNow
+            },
+            new FavoriteEmployeesEntity()
+            {
+                Id = 2,
+                EmployeeId = 2,
+                Employee =  new EmployeeEntity
+                {
+                    Id = 2,
+                    CompanyId = 1,
+                    BranchId = 1,
+                    ServiceId = 1,
+                    FirstName = "Test Firstname2",
+                    LastName = "Test Lastname2",
+                    PhoneNumber = "+992923324242",
+                    Position = "Barber2",
+                    CreatedAt = DateTime.UtcNow
+                },
+                CustomerId = 1,
+                CreatedAt = DateTime.UtcNow
+            },
+            new FavoriteEmployeesEntity()
+            {
+                Id = 3,
+                Employee =  new EmployeeEntity
+                {
+                    Id = 3,
+                    CompanyId = 1,
+                    BranchId = 1,
+                    ServiceId = 1,
+                    FirstName = "Test Firstname3",
+                    LastName = "Test Lastname3",
+                    PhoneNumber = "+992923324243",
+                    Position = "Barber3",
+                    CreatedAt = DateTime.UtcNow
+                },
+                EmployeeId = 3,
+                CustomerId = 1,
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+    }
 
     public static UserEntity CreateUserCustomer()
     {

@@ -60,6 +60,11 @@ public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdmi
             throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Email already exists");
         }
         
+        if (await _dbContext.Employees.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
 
         var company = await _branchService.CheckCompanyId(new CompanyRequest
         {

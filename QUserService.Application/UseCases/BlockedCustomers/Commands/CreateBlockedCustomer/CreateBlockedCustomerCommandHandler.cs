@@ -5,10 +5,10 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.BlockedCustomerEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts.Events.BlockedCustomerEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.BlockedCustomers.Commands.CreateBlockedCustomer;

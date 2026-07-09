@@ -26,4 +26,5 @@ public class UserServiceDbContext : DbContext, IUserServiceApplicationDbContext
     public DbSet<CustomerEntity> Customer { get; set; }
     public DbSet<BlockedCustomerEntity> BlockedCustomers { get; set; }
     public DbSet<AvailabilityScheduleEntity> AvailabilitySchedules { get; set; }
+    public DbSet<FavoriteEmployeesEntity> FavoriteEmployeeEntities { get; set; }
 }

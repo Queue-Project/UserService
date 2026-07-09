@@ -1,4 +1,4 @@
-namespace QAuthService.Contracts.Events.CustomerEvent;
+namespace QUserService.Contracts.Events.CustomerEvent;
 
 public class CustomerCreatedEvent
 {

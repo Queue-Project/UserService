@@ -3,10 +3,10 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.CustomerEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts.Events.CustomerEvent;
 
 namespace QUserService.Application.UseCases.Customers.Commands.UpdateCustomerProfile;
 
@@ -31,7 +31,11 @@ public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustome
     {
         _logger.LogInformation("Updating customer profile");
 
-
+        if (await _dbContext.Customer.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
         var currentCustomer = await _currentUserService.GetCurrentCustomerAsync(_dbContext, cancellationToken);
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(s => s.CustomerId == currentCustomer.Id,

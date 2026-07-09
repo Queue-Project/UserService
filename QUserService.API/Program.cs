@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using QUserService.API;
+using QUserService.API.Middlewares;
 using QUserService.Application.Caching;
 using QUserService.Application.Extensions;
 using QUserService.Application.Interfaces;
@@ -153,12 +155,13 @@ builder.Services.AddDbContext<UserServiceDbContext>(options =>
 });
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

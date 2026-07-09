@@ -1,8 +1,10 @@
+using System.Net;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
-using QAuthService.Contracts.Events.CustomerEvent;
+using QUserService.Application.Exceptions;
 using QUserService.Application.UseCases.Customers.Commands.CreateCustomer;
+using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Infrastructure.Persistence.Database;
 using Shouldly;
 using UserService.UnitTest.UserService.Application.Tests.Infrastructure;
@@ -72,5 +74,36 @@ public class CreateCustomerCommandTests
         _mockPublishEndpoint.Verify(x=>x.Publish(It.IsAny<CustomerCreatedEvent>(), It.IsAny<CancellationToken>()));
         
 
+    }
+    
+     
+    [Fact]
+    public async Task Handler_Should_Throw_Exception_When_Phone_Number_Already_Exists()
+    {
+        // Arrange
+
+        var existingUser = TestDataSeeder.CreateCustomer();
+        existingUser.PhoneNumber = "+992923324252";
+        await _dbContext.Customer.AddAsync(existingUser, CancellationToken.None);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+        var command = new CreateCustomerCommand(
+            "Test Firstname",
+            "Test Lastname",
+            "+992923324252"
+        );
+
+        // Act 
+        
+        var result = _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        
+        var exception = await result.ShouldThrowAsync<HttpStatusCodeException>();
+        
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        exception.Message.ShouldContain("Phone number already exists");
+
+      
     }
 }

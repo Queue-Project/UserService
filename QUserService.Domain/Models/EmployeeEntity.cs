@@ -14,4 +14,5 @@ public class EmployeeEntity : BaseEntity
 
 
     public List<AvailabilityScheduleEntity> AvailabilitySchedules { get; set; }
+    public List<FavoriteEmployeesEntity> FavoriteEmployees { get; set; }
 }

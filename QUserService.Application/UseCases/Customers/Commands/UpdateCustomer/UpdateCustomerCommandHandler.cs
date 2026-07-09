@@ -3,10 +3,10 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.CustomerEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Customers.Commands.UpdateCustomer;
@@ -27,6 +27,12 @@ public class UpdateCustomerCommandHandler: IRequestHandler<UpdateCustomerCommand
     public async Task<CustomerResponseModel> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Updating customer with Id {id}.", request.Id);
+        
+        if (await _dbContext.Customer.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
         var dbCustomer = await _dbContext.Customer.FirstOrDefaultAsync(s => s.Id == request.Id, cancellationToken);    
         if (dbCustomer == null)
         {

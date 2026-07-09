@@ -1,4 +1,4 @@
-namespace QAuthService.Contracts.Events.EmployeeEvent;
+namespace QUserService.Contracts.Events.EmployeeEvent;
 
 public class EmployeeCreatedEvent
 {

@@ -3,11 +3,12 @@ using BranchService.Contracts.Interfaces;
 using BranchService.Contracts.Requests;
 using MassTransit;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.EmployeeEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Employees.Commands.CreateEmployee;
@@ -34,7 +35,11 @@ public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeComman
     public async Task<EmployeeResponseModel> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Adding new Employee with name {employeeName}", request.Firstname);
-        
+        if (await _dbContext.Employees.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
         var currentEmployee = await _currentUserService.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
 
         
@@ -68,7 +73,7 @@ public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeComman
                 serviceResult.ErrorMessage ?? "Branch not found");
         }
 
-
+        
         var employee = new EmployeeEntity()
         {
             CompanyId = serviceResult.CompanyId,

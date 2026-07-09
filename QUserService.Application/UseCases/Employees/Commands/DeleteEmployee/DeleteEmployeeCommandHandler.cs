@@ -3,9 +3,9 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.EmployeeEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Employees.Commands.DeleteEmployee;
@@ -27,13 +27,18 @@ public class DeleteEmployeeCommandHandler: IRequestHandler<DeleteEmployeeCommand
     {
         _logger.LogInformation("Deleting employee with Id {id}", request.Id);
 
+
+        var dbUser =
+            await _dbContext.Users.FirstOrDefaultAsync(s => s.EmployeeId!.Value == request.Id, cancellationToken);
+        
         var dbEmployee = await _dbContext.Employees.FirstOrDefaultAsync(s => s.Id == request.Id, cancellationToken);
-        if (dbEmployee== null)
+        if (dbEmployee== null || dbUser== null)
         {
             _logger.LogWarning("Employee with Id {id} not found for deleting", request.Id);
             throw new HttpStatusCodeException(HttpStatusCode.NotFound, nameof(EmployeeEntity));
         }
-        
+
+        _dbContext.Users.Remove(dbUser);
         _dbContext.Employees.Remove(dbEmployee);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Employee with Id {id} deleted successfully", request.Id);

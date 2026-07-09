@@ -6,10 +6,10 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.EmployeeEvent;
 using QNotificationService.Contracts.NotificationEvents;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Domain.Enums;
 using QUserService.Domain.Models;
 
@@ -63,7 +63,14 @@ public class CreateEmployeeRoleCommandHandler : IRequestHandler<CreateEmployeeRo
             _logger.LogWarning("Email is already exists.");
             throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Email already exists");
         }
-
+        
+        
+        if (await _dbContext.Employees.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
+        
         if (!request.ServiceId.HasValue)
         {
             _logger.LogError("ServiceId is required for creating an employee");

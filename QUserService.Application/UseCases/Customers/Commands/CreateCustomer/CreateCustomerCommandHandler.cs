@@ -1,9 +1,12 @@
+using System.Net;
 using MassTransit;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QAuthService.Contracts.Events.CustomerEvent;
+using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.Responses;
+using QUserService.Contracts.Events.CustomerEvent;
 using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Customers.Commands.CreateCustomer;
@@ -25,6 +28,11 @@ public class CreateCustomerCommandHandler: IRequestHandler<CreateCustomerCommand
     {
         _logger.LogInformation("Adding new customer with name {request.FirstName}", request.Firstname);
 
+        if (await _dbContext.Customer.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+        {
+            _logger.LogWarning("Phone number is already exists.");
+            throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
+        }
         var customer = new CustomerEntity()
         {
             FirstName = request.Firstname,

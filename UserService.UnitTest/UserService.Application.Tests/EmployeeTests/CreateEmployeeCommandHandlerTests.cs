@@ -6,10 +6,10 @@ using MagicOnion;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
-using QAuthService.Contracts.Events.EmployeeEvent;
 using QUserService.Application.Exceptions;
 using QUserService.Application.Interfaces;
 using QUserService.Application.UseCases.Employees.Commands.CreateEmployee;
+using QUserService.Contracts.Events.EmployeeEvent;
 using QUserService.Infrastructure.Persistence.Database;
 using Shouldly;
 using UserService.UnitTest.UserService.Application.Tests.Infrastructure;
@@ -54,7 +54,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992977724252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse
@@ -119,7 +119,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992956324252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse
@@ -165,7 +165,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992968324252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse
@@ -252,7 +252,7 @@ public class CreateEmployeeCommandHandlerTests
             "Test Firstname",
             "Test Lastname",
             "Test Position",
-            "+992923324252"
+            "+992977324252"
         );
 
         var serviceExpectedResponse = new CompanyServiceResponse
@@ -297,6 +297,39 @@ public class CreateEmployeeCommandHandlerTests
         result.ShouldNotBeNull();
         _mockPublishEndpoint.Verify(x=>x.Publish(It.IsAny<EmployeeCreatedEvent>(), It.IsAny<CancellationToken>()));
         
+    }
+    
+    [Fact]
+    public async Task Handler_Should_Throw_Exception_When_Phone_Number_Already_Exists()
+    {
+        // Arrange
+
+        var existingUser = TestDataSeeder.CreateEmployee();
+        existingUser.PhoneNumber = "+992986654535";
+        await _dbContext.Employees.AddAsync(existingUser, CancellationToken.None);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+        var command = new CreateEmployeeCommand(
+            1,
+            1,
+            "Test Firstname",
+            "Test Lastname",
+            "Test Position",
+            "+992986654535"
+        );
+
+        // Act 
+        
+        var result = _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        
+        var exception = await result.ShouldThrowAsync<HttpStatusCodeException>();
+        
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        exception.Message.ShouldContain("Phone number already exists");
+
+      
     }
     
     
