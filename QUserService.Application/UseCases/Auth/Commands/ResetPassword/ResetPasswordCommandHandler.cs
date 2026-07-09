@@ -38,8 +38,8 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
                 "Password reset failed. User not found");
 
             throw new HttpStatusCodeException(
-                HttpStatusCode.BadRequest,
-                "Invalid reset request");
+                HttpStatusCode.NotFound,
+                $"User with {request.EmailAddress} not found");
         }
 
 
