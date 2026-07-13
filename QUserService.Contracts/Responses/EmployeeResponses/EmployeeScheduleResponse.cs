@@ -9,11 +9,9 @@ public class EmployeeScheduleResponse
     public int EmployeeId { get; set; }
     
     [Key(1)]
-    public DateTimeOffset Date { get; set; }
+    public DateOnly Date { get; set; }
     
     [Key(2)]
-    public List<TimeSlot> WorkingHours { get; set; } = new();
+    public List<EmployeeScheduleInfo> Schedules { get; set; } = [];
     
-    [Key(3)]
-    public List<TimeSlot> BookedSlots { get; set; } = new();
 }

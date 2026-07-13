@@ -25,5 +25,5 @@ public class Interval<T> where T : notnull
     }
 
     public T From { get; set; }
-    public T To { get; set; }  
+    public T To { get; set; }     
 }

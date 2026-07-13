@@ -12,9 +12,8 @@ public class EmployeeScheduleResponseTests
         var originalRequest = new EmployeeScheduleResponse()
         {
             EmployeeId=1,
-            BookedSlots = new List<TimeSlot>(),
-            WorkingHours = new List<TimeSlot>(),
-            Date = DateTimeOffset.UtcNow.Date
+            Schedules = new List<EmployeeScheduleInfo>(),
+            Date = DateOnly.FromDateTime(DateTime.UtcNow)
         };
 
         var bytes = MessagePackSerializer.Serialize(originalRequest);
@@ -22,8 +21,7 @@ public class EmployeeScheduleResponseTests
 
 
         deserializedRequest.EmployeeId.ShouldBe(originalRequest.EmployeeId);
-        deserializedRequest.BookedSlots.ShouldBe(originalRequest.BookedSlots);
-        deserializedRequest.WorkingHours.ShouldBe(originalRequest.WorkingHours);
+        deserializedRequest.Schedules.ShouldBe(originalRequest.Schedules);
         deserializedRequest.Date.ShouldBe(originalRequest.Date);
         
     }

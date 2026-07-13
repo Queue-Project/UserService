@@ -14,7 +14,6 @@ public class EmployeeAvailabilityRequestTests
             RequestId = Guid.NewGuid(),
             EmployeeId = 1,
             ExistingQueueId = 1,
-            DurationMinutes = 30,
             StartTime = DateTimeOffset.UtcNow.AddHours(1),
             EndTime = DateTimeOffset.UtcNow.AddHours(2)
         };
@@ -26,7 +25,6 @@ public class EmployeeAvailabilityRequestTests
         deserializedRequest.RequestId.ShouldBe(originalRequest.RequestId);
         deserializedRequest.EmployeeId.ShouldBe(originalRequest.EmployeeId);
         deserializedRequest.ExistingQueueId.ShouldBe(originalRequest.ExistingQueueId);
-        deserializedRequest.DurationMinutes.ShouldBe(originalRequest.DurationMinutes);
         deserializedRequest.StartTime.ShouldBe(originalRequest.StartTime);
         deserializedRequest.EndTime.ShouldBe(originalRequest.EndTime);
     }

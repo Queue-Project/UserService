@@ -13,7 +13,7 @@ public class EmployeeScheduleRequestTests
         {
             RequestId = Guid.NewGuid(),
             EmployeeId = 1,
-            Date = DateTimeOffset.UtcNow.Date
+            Date = DateOnly.FromDateTime(DateTime.UtcNow)
         };
 
         var bytes = MessagePackSerializer.Serialize(originalRequest);

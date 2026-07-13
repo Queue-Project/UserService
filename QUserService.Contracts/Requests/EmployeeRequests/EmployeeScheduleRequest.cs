@@ -9,7 +9,7 @@ public class EmployeeScheduleRequest
     public int EmployeeId { get; set; }
     
     [Key(1)]
-    public DateTimeOffset Date { get; set; }
+    public DateOnly Date { get; set; }
     
     [Key(2)]
     public Guid RequestId { get; set; }
