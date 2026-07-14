@@ -1,3 +1,5 @@
+using BranchService.Contracts.Events.Enums;
+
 namespace QUserService.Contracts.Events.EmployeeEvent;
 
 public class EmployeeDeletedEvent
@@ -6,6 +8,8 @@ public class EmployeeDeletedEvent
     public AuditData? AuditData { get; set; }
     
     public int CompanyId { get; set; }
+    public CompanyCategory CompanyCategory { get; set; }
+    
     public int? BranchId { get; set; }
     public int EmployeeId { get; set; }
     public int? ServiceId { get; set; }

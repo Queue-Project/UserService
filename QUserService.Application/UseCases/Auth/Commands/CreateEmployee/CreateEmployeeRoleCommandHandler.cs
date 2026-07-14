@@ -149,6 +149,7 @@ public class CreateEmployeeRoleCommandHandler : IRequestHandler<CreateEmployeeRo
         {
             OccurredAt = DateTimeOffset.UtcNow,
             CompanyId = employee.CompanyId,
+            CompanyCategory = companyResult.CompanyCategory!.Value,
             BranchId = employee.BranchId,
             EmployeeId = employee.Id,
             ServiceId = employee.ServiceId,

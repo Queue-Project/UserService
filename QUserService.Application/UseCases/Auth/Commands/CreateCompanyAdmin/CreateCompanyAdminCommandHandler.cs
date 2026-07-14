@@ -16,7 +16,7 @@ using QUserService.Domain.Models;
 
 namespace QUserService.Application.UseCases.Auth.Commands.CreateCompanyAdmin;
 
-public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdminCommand, UserEntity>
+public class CreateCompanyAdminCommandHandler : IRequestHandler<CreateCompanyAdminCommand, UserEntity>
 {
     private readonly ILogger<CreateCompanyAdminCommandHandler> _logger;
     private readonly IUserServiceApplicationDbContext _dbContext;
@@ -24,8 +24,8 @@ public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdmi
     private readonly IBranchService _branchService;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public CreateCompanyAdminCommandHandler(ILogger<CreateCompanyAdminCommandHandler> logger, 
-        IUserServiceApplicationDbContext dbContext, 
+    public CreateCompanyAdminCommandHandler(ILogger<CreateCompanyAdminCommandHandler> logger,
+        IUserServiceApplicationDbContext dbContext,
         IPasswordHasher<UserEntity> passwordHasher, IBranchService branchService, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
@@ -55,14 +55,15 @@ public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdmi
         }
 
         _logger.LogDebug("Checking email for already exists emails");
-        if (await _dbContext.Users.FirstOrDefaultAsync(s=>s.EmailAddress== request.EmailAddress, cancellationToken) != null)
+        if (await _dbContext.Users.FirstOrDefaultAsync(s => s.EmailAddress == request.EmailAddress,
+                cancellationToken) != null)
         {
-            
             _logger.LogWarning("Email is already exists.");
             throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Email already exists");
         }
-        
-        if (await _dbContext.Employees.FirstOrDefaultAsync(s=>s.PhoneNumber == request.PhoneNumber, cancellationToken) != null)
+
+        if (await _dbContext.Employees.FirstOrDefaultAsync(s => s.PhoneNumber == request.PhoneNumber,
+                cancellationToken) != null)
         {
             _logger.LogWarning("Phone number is already exists.");
             throw new HttpStatusCodeException(HttpStatusCode.BadRequest, "Phone number already exists");
@@ -98,6 +99,7 @@ public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdmi
         {
             OccurredAt = DateTimeOffset.UtcNow,
             CompanyId = employee.CompanyId,
+            CompanyCategory = company.CompanyCategory!.Value,
             BranchId = employee.BranchId,
             EmployeeId = employee.Id,
             ServiceId = employee.ServiceId,
@@ -113,7 +115,7 @@ public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdmi
         }, cancellationToken);
         await _dbContext.Employees.AddAsync(employee, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        
+
         var user = new UserEntity
         {
             EmployeeId = employee.Id,
@@ -124,26 +126,26 @@ public class CreateCompanyAdminCommandHandler: IRequestHandler<CreateCompanyAdmi
         _logger.LogDebug("Hashing password");
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 
-        var code = new Random().Next(10000,999999).ToString();
+        var code = new Random().Next(10000, 999999).ToString();
         user.EmailVerificationCode = code;
         user.EmailVerificationCodeExpires = DateTime.UtcNow.AddMinutes(10);
-        
+
         await _dbContext.Users.AddAsync(user, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        
-         await _publishEndpoint.Publish(new SendNotificationEvent
-         {
-             Email = user.EmailAddress,
-             Message = $@"
+
+        await _publishEndpoint.Publish(new SendNotificationEvent
+        {
+            Email = user.EmailAddress,
+            Message = $@"
                  Welcome to Queue System!
 
                  Your verification code is: {code}
 
                  This code will expire in 10 minutes.
                  ",
-             UserId = user.Id
-         }, cancellationToken);
-        
+            UserId = user.Id
+        }, cancellationToken);
+
         _logger.LogInformation("Employee with {email} email address registered successfully", request.EmailAddress);
         return user;
     }

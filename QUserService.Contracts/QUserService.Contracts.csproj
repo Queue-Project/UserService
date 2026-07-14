@@ -6,11 +6,12 @@
         <Nullable>enable</Nullable>
         <PackageId>UserService.Contracts</PackageId>
         <Authors>QueueProject</Authors>
-        <Version>1.0.6</Version>
+        <Version>1.0.7</Version>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="BranchService.Contracts" Version="1.0.7" />
       <PackageReference Include="MagicOnion.Abstractions" Version="7.10.1" />
       <PackageReference Include="MessagePack.Annotations" Version="3.1.7" />
       <PackageReference Include="QAuditLogService.Contracts" Version="1.0.0" />

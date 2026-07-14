@@ -1,4 +1,9 @@
 using System.Net;
+using BranchService.Contracts.Events.Enums;
+using BranchService.Contracts.Interfaces;
+using BranchService.Contracts.Requests;
+using BranchService.Contracts.Responses;
+using MagicOnion;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,21 +25,35 @@ public class UpdateEmployeeCommandHandlerTests
     private readonly Mock<ILogger<UpdateEmployeeCommandHandler>> _mockLogger;
     private readonly UpdateEmployeeCommandHandler _handler;
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
+    private readonly Mock<IBranchService> _mockBranchService;
 
     public UpdateEmployeeCommandHandlerTests()
     {
         _mockCurrentUserService = new Mock<ICurrentUserService>();
         _dbContext = TestDbContextFactory.Create();
         _mockPublishEndpoint = new Mock<IPublishEndpoint>();
+        _mockBranchService = new Mock<IBranchService>();
         _mockLogger = new Mock<ILogger<UpdateEmployeeCommandHandler>>();
-        _handler = new UpdateEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object, _mockCurrentUserService.Object);
+        _handler = new UpdateEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object,
+            _mockCurrentUserService.Object, _mockBranchService.Object);
     }
-    
+
     [Fact]
     public async Task Handler_Should_Update_Employee()
     {
         //Arrange
-
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         var customer = TestDataSeeder.CreateEmployee();
 
@@ -43,25 +62,25 @@ public class UpdateEmployeeCommandHandlerTests
 
         _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
             .ReturnsAsync(companyAdmin);
-        
+
         var command = new UpdateEmployeeCommand(
             1,
             "Update Firstname",
             "Update Lastname",
             "Barber",
             "+992923324252");
-        
-        
+
+
         //Act
-        var result =await _handler.Handle(command, CancellationToken.None);
-        
-        
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+
         //Assert
         result.ShouldNotBeNull();
         result.Id.ShouldBe(1);
 
 
-        var employeeResult= await _dbContext.Employees
+        var employeeResult = await _dbContext.Employees
             .FirstOrDefaultAsync();
 
         employeeResult.ShouldNotBeNull();
@@ -76,6 +95,18 @@ public class UpdateEmployeeCommandHandlerTests
     [Fact]
     public async Task Handler_Should_Return_NotFound()
     {
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var command = new UpdateEmployeeCommand(
             1,
             "Update Firstname",
@@ -83,11 +114,11 @@ public class UpdateEmployeeCommandHandlerTests
             "Barber",
             "+992923324252");
 
-        
+
         //Act
-        var result =  _handler.Handle(command, CancellationToken.None);
-        
-        
+        var result = _handler.Handle(command, CancellationToken.None);
+
+
         //Assert
         var exception = result.ShouldThrow<HttpStatusCodeException>();
         exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -97,6 +128,18 @@ public class UpdateEmployeeCommandHandlerTests
     public async Task Handler_Should_Publish_Event()
     {
         //Arrange
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
 
         var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         var customer = TestDataSeeder.CreateEmployee();
@@ -106,35 +149,45 @@ public class UpdateEmployeeCommandHandlerTests
 
         _mockCurrentUserService.Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
             .ReturnsAsync(companyAdmin);
-        
-        
+
+
         var command = new UpdateEmployeeCommand(
             1,
             "Update Firstname",
             "Update Lastname",
             "Barber",
             "+992923324252");
-        
-        
+
+
         //Act
-        var result =await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, CancellationToken.None);
 
         //Assert
 
         result.ShouldNotBeNull();
-        
-        _mockPublishEndpoint.Verify(x=>
+
+        _mockPublishEndpoint.Verify(x =>
             x.Publish(It.IsAny<EmployeeUpdatedEvent>(),
                 It.IsAny<CancellationToken>()), Times.Once);
-        
     }
-    
+
     [Fact]
     public async Task Handler_Should_Throw_Exception_When_Phone_Number_Already_Exists()
     {
         // Arrange
-        
-        
+
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         var existingUser = TestDataSeeder.CreateEmployee();
         existingUser.PhoneNumber = "+992923324252";
@@ -153,16 +206,14 @@ public class UpdateEmployeeCommandHandlerTests
             "+992923324252");
 
         // Act 
-        
+
         var result = _handler.Handle(command, CancellationToken.None);
 
         //Assert
-        
+
         var exception = await result.ShouldThrowAsync<HttpStatusCodeException>();
-        
+
         exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         exception.Message.ShouldContain("Phone number already exists");
-
-      
     }
 }

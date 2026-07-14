@@ -43,6 +43,19 @@ public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeComman
         }
         var currentEmployee = await _currentUserService.GetCurrentEmployeeAsync(_dbContext, cancellationToken);
 
+        var companyResult = await _branchService.CheckCompanyId(new CompanyRequest()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = currentEmployee.CompanyId,
+            RequestedAt = DateTime.UtcNow
+        });
+        
+        if (!companyResult.IsValid)
+        {
+            _logger.LogInformation("Company with Id {CompanyId} not found", currentEmployee.CompanyId);
+            throw new HttpStatusCodeException(HttpStatusCode.NotFound,
+                companyResult.ErrorMessage ?? "Company not found");
+        }
         
         var serviceResult = await _branchService.CheckCompanyServiceId(new CompanyServiceRequest
         {
@@ -97,6 +110,7 @@ public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeComman
         {
             OccurredAt = DateTimeOffset.UtcNow,
             CompanyId = employee.CompanyId,
+            CompanyCategory = companyResult.CompanyCategory!.Value,
             BranchId = employee.BranchId,
             EmployeeId = employee.Id,
             ServiceId = employee.ServiceId,
