@@ -123,9 +123,8 @@ public class TestDataSeeder
             }
         };
     }
-    
-    
-    
+
+
     public static FavoriteEmployeesEntity CreateFavoriteEmployee()
     {
         return new FavoriteEmployeesEntity()
@@ -136,7 +135,7 @@ public class TestDataSeeder
             CreatedAt = DateTime.UtcNow
         };
     }
-    
+
     public static List<FavoriteEmployeesEntity> CreateFavoriteEmployees()
     {
         return new List<FavoriteEmployeesEntity>
@@ -145,7 +144,7 @@ public class TestDataSeeder
             {
                 Id = 1,
                 EmployeeId = 1,
-                Employee =  new EmployeeEntity
+                Employee = new EmployeeEntity
                 {
                     Id = 1,
                     CompanyId = 1,
@@ -164,7 +163,7 @@ public class TestDataSeeder
             {
                 Id = 2,
                 EmployeeId = 2,
-                Employee =  new EmployeeEntity
+                Employee = new EmployeeEntity
                 {
                     Id = 2,
                     CompanyId = 1,
@@ -182,7 +181,7 @@ public class TestDataSeeder
             new FavoriteEmployeesEntity()
             {
                 Id = 3,
-                Employee =  new EmployeeEntity
+                Employee = new EmployeeEntity
                 {
                     Id = 3,
                     CompanyId = 1,
@@ -305,6 +304,100 @@ public class TestDataSeeder
             PasswordResetExpiry = null,
             EmployeeId = 1,
             CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static List<UserEntity> CreateUserEmployeesRole()
+    {
+        return new List<UserEntity>
+        {
+            new UserEntity
+            {
+                Id = 1,
+                CustomerId = null,
+                EmailAddress = "test@gmail.com",
+                PasswordHash = "Password-hash-1234",
+                Roles = UserRoles.Employee,
+                IsEmailVerified = true,
+                EmailVerificationCode = null,
+                EmailVerificationCodeExpires = null,
+                VerifiedAt = null,
+                ResendCount = 0,
+                PasswordResetCode = null,
+                PasswordResetExpiry = null,
+                EmployeeId = 1,
+                Employee = new EmployeeEntity
+                {
+                    Id = 1,
+                    CompanyId = 1,
+                    BranchId = 1,
+                    ServiceId = 1,
+                    FirstName = "Test Firstname",
+                    LastName = "Test Lastname",
+                    PhoneNumber = "+992923324211",
+                    Position = "Barber",
+                    CreatedAt = DateTime.UtcNow
+                },
+                CreatedAt = DateTime.UtcNow
+            },
+            new UserEntity
+            {
+                Id = 2,
+                CustomerId = null,
+                EmailAddress = "test@gmail.com",
+                PasswordHash = "Password-hash-1234",
+                Roles = UserRoles.Employee,
+                IsEmailVerified = true,
+                EmailVerificationCode = null,
+                EmailVerificationCodeExpires = null,
+                VerifiedAt = null,
+                ResendCount = 0,
+                PasswordResetCode = null,
+                PasswordResetExpiry = null,
+                EmployeeId = 2,
+                Employee = new EmployeeEntity
+                {
+                    Id = 2,
+                    CompanyId = 1,
+                    BranchId = 1,
+                    ServiceId = 1,
+                    FirstName = "Test Firstname",
+                    LastName = "Test Lastname",
+                    PhoneNumber = "+992923324212",
+                    Position = "Barber",
+                    CreatedAt = DateTime.UtcNow
+                },
+                CreatedAt = DateTime.UtcNow
+            },
+            new UserEntity
+            {
+                Id = 3,
+                CustomerId = null,
+                EmailAddress = "test@gmail.com",
+                PasswordHash = "Password-hash-1234",
+                Roles = UserRoles.Employee,
+                IsEmailVerified = true,
+                EmailVerificationCode = null,
+                EmailVerificationCodeExpires = null,
+                VerifiedAt = null,
+                ResendCount = 0,
+                PasswordResetCode = null,
+                PasswordResetExpiry = null,
+                EmployeeId = 3,
+                Employee = new EmployeeEntity
+                {
+                    Id = 3,
+                    CompanyId = 1,
+                    BranchId = 1,
+                    ServiceId = 1,
+                    FirstName = "Test Firstname",
+                    LastName = "Test Lastname",
+                    PhoneNumber = "+992923324213",
+                    Position = "Barber",
+                    CreatedAt = DateTime.UtcNow
+                },
+                CreatedAt = DateTime.UtcNow
+            },
         };
     }
 
@@ -449,6 +542,5 @@ public class TestDataSeeder
                 CreatedAt = DateTime.UtcNow
             }
         };
-
     }
 }
