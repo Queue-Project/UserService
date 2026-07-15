@@ -25,6 +25,8 @@ public interface IUserService: IService<IUserService>
     UnaryResult<EmployeeResponse> GetEmployeeByUserId(GetEmployeeByUserIdRequest request);
     UnaryResult<EmployeeAvailabilityResponse> CheckEmployeeAvailability(EmployeeAvailabilityRequest request);
     UnaryResult<EmployeeScheduleResponse> GetEmployeeSchedule(EmployeeScheduleRequest request);
+    UnaryResult<List<EmployeeDetailsResponse>> GetEmployeeDetails(List<int> employeeIds);
+    
     
     UnaryResult<UserResponse> GetUserById(UserByIdRequest request);
     UnaryResult<UserResponse> GetUserByCustomerId(GetUserByCustomerIdRequest request);
