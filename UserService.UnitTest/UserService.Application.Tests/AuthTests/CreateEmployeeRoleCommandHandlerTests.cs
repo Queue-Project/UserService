@@ -1,4 +1,5 @@
 using System.Net;
+using BranchService.Contracts.Events.Enums;
 using BranchService.Contracts.Interfaces;
 using BranchService.Contracts.Requests;
 using BranchService.Contracts.Responses;
@@ -68,6 +69,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             RequestId = Guid.NewGuid(),
             CompanyId = 1,
             CompanyName = "Test Name",
+            CompanyCategory = CompanyCategory.Beauty,
             IsValid = true,
             ErrorMessage = null
         };
@@ -513,6 +515,7 @@ public class CreateEmployeeRoleCommandHandlerTests
             RequestId = Guid.NewGuid(),
             CompanyId = 1,
             CompanyName = "Test Name",
+            CompanyCategory = CompanyCategory.Beauty,
             IsValid = true,
             ErrorMessage = null
         };

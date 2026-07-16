@@ -1,4 +1,9 @@
 using System.Net;
+using BranchService.Contracts.Events.Enums;
+using BranchService.Contracts.Interfaces;
+using BranchService.Contracts.Requests;
+using BranchService.Contracts.Responses;
+using MagicOnion;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -20,6 +25,7 @@ public class DeleteEmployeeCommandHandlerTests
     private readonly Mock<ILogger<DeleteEmployeeCommandHandler>> _mockLogger;
     private readonly DeleteEmployeeCommandHandler _handler;
     private readonly Mock<ICurrentUserService> _mockCurrentUserService;
+    private readonly Mock<IBranchService> _mockBranchService;
 
     public DeleteEmployeeCommandHandlerTests()
     {
@@ -27,8 +33,9 @@ public class DeleteEmployeeCommandHandlerTests
         _dbContext = TestDbContextFactory.Create();
         _mockPublishEndpoint = new Mock<IPublishEndpoint>();
         _mockLogger = new Mock<ILogger<DeleteEmployeeCommandHandler>>();
+        _mockBranchService = new Mock<IBranchService>();
         _handler = new DeleteEmployeeCommandHandler(_mockLogger.Object, _dbContext, _mockPublishEndpoint.Object,
-            _mockCurrentUserService.Object);
+            _mockCurrentUserService.Object, _mockBranchService.Object);
     }
 
     [Fact]
@@ -36,6 +43,18 @@ public class DeleteEmployeeCommandHandlerTests
     {
         //Arrange
 
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         
         var userEmployee = TestDataSeeder.CreateUserEmployeeRole();
@@ -62,6 +81,18 @@ public class DeleteEmployeeCommandHandlerTests
     public async Task Handler_Should_Return_NotFound()
     {
         //Arrange
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var command = new DeleteEmployeeCommand(1);
 
 
@@ -78,6 +109,18 @@ public class DeleteEmployeeCommandHandlerTests
     public async Task Handler_Should_Publish_Event()
     {
         //Arrange
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var companyAdmin = TestDataSeeder.CreateEmployeeCompanyAdmin();
         
         var userEmployee = TestDataSeeder.CreateUserEmployeeRole();

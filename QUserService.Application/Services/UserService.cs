@@ -2,6 +2,7 @@ using MagicOnion;
 using MagicOnion.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QUserService.Application.Helpers;
 using QUserService.Application.Interfaces;
 using QUserService.Contracts.Interfaces;
 using QUserService.Contracts.Requests.BlockedCustomersRequests;
@@ -258,7 +259,7 @@ public class UserService : ServiceBase<IUserService>, IUserService
             BannedUntil = blockedCustomer.BannedUntil
         };
     }
-    
+
 
     public async UnaryResult<EmployeeResponse> GetEmployeeById(EmployeeByIdRequest request)
     {
@@ -353,7 +354,6 @@ public class UserService : ServiceBase<IUserService>, IUserService
         };
     }
 
-   
 
     public async UnaryResult<EmployeeAvailabilityResponse> CheckEmployeeAvailability(
         EmployeeAvailabilityRequest request)
@@ -364,16 +364,12 @@ public class UserService : ServiceBase<IUserService>, IUserService
         {
             endTime = request.EndTime.Value;
         }
-        else if (request.DurationMinutes.HasValue)
-        {
-            endTime = request.StartTime.AddMinutes(request.DurationMinutes.Value);
-        }
         else
         {
             return new EmployeeAvailabilityResponse
             {
                 IsAvailable = false,
-                ErrorMessage = "Either EndTime or DurationMinutes must be provided"
+                ErrorMessage = "Either EndTime  must be provided"
             };
         }
 
@@ -426,18 +422,39 @@ public class UserService : ServiceBase<IUserService>, IUserService
             .Where(s => s.EmployeeId == request.EmployeeId)
             .ToListAsync();
 
-        var workingHours = schedules
-            .SelectMany(s => s.AvailableSlots)
-            .Where(slot => slot.From.Date == request.Date.Date || slot.To.Date == request.Date.Date)
-            .Select(slot => new TimeSlot { From = slot.From, To = slot.To })
-            .ToList();
+       
+        var scheduleInfo = new List<EmployeeScheduleInfo>();
+
+        foreach (var schedule in schedules)
+        {
+            var slots = schedule.AvailableSlots
+                .Where(slot => slot.From.ToDateOnly() == request.Date ||
+                               slot.To.ToDateOnly() == request.Date)
+                .Select(slot => new TimeSlot
+                {
+                    From = slot.From,
+                    To = slot.To
+                }).ToList();
+
+            if (!slots.Any())
+            {
+                continue;
+            }
+
+            scheduleInfo.Add(new EmployeeScheduleInfo
+            {
+                ScheduleId = schedule.Id,
+                Description = schedule.Description,
+                AvailableSlots = slots
+            });
+        }
+
 
         return new EmployeeScheduleResponse
         {
             EmployeeId = request.EmployeeId,
             Date = request.Date,
-            WorkingHours = workingHours,
-            BookedSlots = new List<TimeSlot>()
+            Schedules = scheduleInfo
         };
     }
 
@@ -584,7 +601,7 @@ public class UserService : ServiceBase<IUserService>, IUserService
         };
     }
 
-  
+
     public async UnaryResult<BlockedCustomerValidationResponse> IsCustomerBlockedForCompany(
         IsCustomerBlockedRequest request)
     {

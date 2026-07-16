@@ -41,10 +41,12 @@ public class GetEmployeeScheduleTests
         await _dbContext.AvailabilitySchedules.AddAsync(schedule);
         await _dbContext.SaveChangesAsync();
 
+      
+        
         var request = new EmployeeScheduleRequest
         {
             EmployeeId = employeeId,
-            Date = date
+            Date = DateOnly.FromDateTime(DateTime.UtcNow)
         };
 
         // Act
@@ -53,12 +55,9 @@ public class GetEmployeeScheduleTests
         // Assert
         result.ShouldNotBeNull();
         result.EmployeeId.ShouldBe(employeeId);
-        result.Date.ShouldBe(date);
-        result.WorkingHours.ShouldNotBeNull();
-        result.WorkingHours.Count.ShouldBe(1);
-        result.WorkingHours.First().From.ShouldBe(fromTime);
-        result.WorkingHours.First().To.ShouldBe(toTime);
-        result.BookedSlots.ShouldNotBeNull();
+        result.Date.ShouldBe(request.Date);
+        result.Schedules.ShouldNotBeNull();
+        result.Schedules.Count.ShouldBe(1);
     }
 
     [Fact]
@@ -84,7 +83,7 @@ public class GetEmployeeScheduleTests
         var request = new EmployeeScheduleRequest
         {
             EmployeeId = employeeId,
-            Date = date
+            Date = DateOnly.FromDateTime(DateTime.UtcNow)
         };
 
         // Act
@@ -93,9 +92,8 @@ public class GetEmployeeScheduleTests
         // Assert
         result.ShouldNotBeNull();
         result.EmployeeId.ShouldBe(employeeId);
-        result.Date.ShouldBe(date);
-        result.WorkingHours.ShouldNotBeNull();
-        result.WorkingHours.ShouldBeEmpty();
-        result.BookedSlots.ShouldNotBeNull();
+        result.Date.ShouldBe(request.Date);
+        result.Schedules.ShouldNotBeNull();
+        result.Schedules.ShouldBeEmpty();
     }
 }

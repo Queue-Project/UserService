@@ -1,4 +1,5 @@
 using System.Net;
+using BranchService.Contracts.Events.Enums;
 using BranchService.Contracts.Interfaces;
 using BranchService.Contracts.Requests;
 using BranchService.Contracts.Responses;
@@ -56,6 +57,18 @@ public class CreateEmployeeCommandHandlerTests
             "Test Position",
             "+992977724252"
         );
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
 
         var serviceExpectedResponse = new CompanyServiceResponse
         {
@@ -131,7 +144,18 @@ public class CreateEmployeeCommandHandlerTests
             ErrorMessage = "CompanyService not found",
             CompanyServiceName = null
         };
-        
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));        
         _mockCurrentUser
             .Setup(s => s.GetCurrentEmployeeAsync(_dbContext, It.IsAny<CancellationToken>()))
             .ReturnsAsync(companyAdmin);
@@ -167,7 +191,18 @@ public class CreateEmployeeCommandHandlerTests
             "Test Position",
             "+992968324252"
         );
-
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var serviceExpectedResponse = new CompanyServiceResponse
         {
             RequestId = Guid.NewGuid(),
@@ -254,7 +289,18 @@ public class CreateEmployeeCommandHandlerTests
             "Test Position",
             "+992977324252"
         );
-
+        var companyExpectedResponse = new CompanyResponse()
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = 1,
+            CompanyCategory = CompanyCategory.Beauty,
+            CompanyName = "Test Name",
+            IsValid = true,
+            ErrorMessage = null
+        };
+        _mockBranchService
+            .Setup(s => s.CheckCompanyId(It.IsAny<CompanyRequest>()))
+            .Returns(UnaryResult.FromResult(companyExpectedResponse));
         var serviceExpectedResponse = new CompanyServiceResponse
         {
             RequestId = Guid.NewGuid(),

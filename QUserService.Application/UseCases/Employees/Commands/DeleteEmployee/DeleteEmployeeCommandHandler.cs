@@ -1,4 +1,6 @@
 using System.Net;
+using BranchService.Contracts.Interfaces;
+using BranchService.Contracts.Requests;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,15 +19,17 @@ public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeComman
     private readonly IUserServiceApplicationDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IBranchService _branchService;
 
     public DeleteEmployeeCommandHandler(ILogger<DeleteEmployeeCommandHandler> logger,
         IUserServiceApplicationDbContext dbContext, IPublishEndpoint publishEndpoint,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService, IBranchService branchService)
     {
         _logger = logger;
         _dbContext = dbContext;
         _publishEndpoint = publishEndpoint;
         _currentUserService = currentUserService;
+        _branchService = branchService;
     }
 
     public async Task<bool> Handle(DeleteEmployeeCommand request, CancellationToken cancellationToken)
@@ -43,6 +47,14 @@ public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeComman
             throw new HttpStatusCodeException(HttpStatusCode.NotFound, nameof(EmployeeEntity));
         }
 
+        var company = await _branchService.CheckCompanyId(new CompanyRequest
+        {
+            RequestId = Guid.NewGuid(),
+            CompanyId = currentEmployee.CompanyId,
+            RequestedAt = DateTimeOffset.UtcNow
+
+        });
+        
         _dbContext.Users.Remove(dbUser);
         _dbContext.Employees.Remove(dbEmployee);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -52,6 +64,7 @@ public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeComman
         {
             OccurredAt = DateTimeOffset.UtcNow,
             CompanyId = dbEmployee.CompanyId,
+            CompanyCategory = company.CompanyCategory!.Value,
             BranchId = dbEmployee.BranchId,
             ServiceId = dbEmployee.ServiceId,
             EmployeeId = dbEmployee.Id,

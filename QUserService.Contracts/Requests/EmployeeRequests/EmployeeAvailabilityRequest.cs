@@ -18,8 +18,5 @@ public class EmployeeAvailabilityRequest
     public DateTimeOffset? EndTime { get; set; }  
     
     [Key(4)]
-    public int? DurationMinutes { get; set; }  
-    
-    [Key(5)]
     public int? ExistingQueueId { get; set; }
 }
