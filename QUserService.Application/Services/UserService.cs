@@ -422,7 +422,7 @@ public class UserService : ServiceBase<IUserService>, IUserService
             .Where(s => s.EmployeeId == request.EmployeeId)
             .ToListAsync();
 
-       
+
         var scheduleInfo = new List<EmployeeScheduleInfo>();
 
         foreach (var schedule in schedules)
@@ -458,6 +458,35 @@ public class UserService : ServiceBase<IUserService>, IUserService
         };
     }
 
+    public async UnaryResult<List<EmployeeDetailsResponse>> GetEmployeeDetails(List<int> employeeIds)
+    {
+        if (employeeIds.Count == 0)
+        {
+            return [];
+        }
+
+        employeeIds = employeeIds.Distinct().ToList();
+
+        var employees = await _dbContext.Users
+            .AsNoTracking()
+            .Where(x => x.EmployeeId.HasValue &&
+                        employeeIds.Contains(x.EmployeeId.Value))
+            .Select(x => new EmployeeDetailsResponse
+            {
+                EmployeeId = x.EmployeeId!.Value,
+                CompanyServiceId = x.Employee!.ServiceId,
+                BranchId = x.Employee.BranchId,
+                CompanyId = x.Employee.CompanyId,
+                FirstName = x.Employee.FirstName,
+                LastName = x.Employee.LastName,
+                Position = x.Employee.Position,
+                PhoneNumber = x.Employee.PhoneNumber,
+                EmailAddress = x.EmailAddress
+            })
+            .ToListAsync();
+
+        return employees;
+    }
     public async UnaryResult<UserResponse> GetUserById(UserByIdRequest request)
     {
         var user = await _dbContext.Users
